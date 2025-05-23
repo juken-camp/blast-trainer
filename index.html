@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>BLAST TRAINER</title>
+  <!-- CSS と JS は既存のまま -->
+  <link rel="stylesheet" href="style.css">
+  <script src="main.js" defer></script>
+</head>
+<body>
+<div id="game">
+  <h1>BLAST TRAINER</h1>
+  <!-- モード選択を削除。案内文も調整 -->
+  <div id="jp">レベルと時間を選んで START</div>
+
+  <div id="levelSel">
+    <button class="btnSel sel" data-lv="5">英検5級</button>
+    <button class="btnSel" data-lv="4">4級</button>
+    <button class="btnSel" data-lv="3">3級</button>
+    <button class="btnSel" data-lv="p2">準2</button>
+    <button class="btnSel" data-lv="2">2級</button>
+    <button class="btnSel" data-lv="p1">準1</button>
+    <button class="btnSel" data-lv="1">1級</button>
+  </div>
+  <div id="timerSel">
+    <button class="btnSel sel" data-sec="60">1分</button>
+    <button class="btnSel" data-sec="180">3分</button>
+    <button class="btnSel" data-sec="300">5分</button>
+    <button class="btnSel" data-sec="600">10分</button>
+    <button class="btnSel" data-sec="0">無制限</button>
+  </div>
+
+  <div id="opts"></div>
+  <button id="startBtn">START</button>
+  <div id="hud" style="display:none"><span id="timer">∞</span><span id="score">0</span></div>
+  <div id="info"></div>
+</div>
+
+<script>
+/* ---------- ユーティリティ ---------- */
+const $ = id => document.getElementById(id);
+const shuffle = a => { for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const speak = t => { 'speechSynthesis' in window && speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance(t), { lang: 'en-US' })); };
+
+/* ---------- 状態変数 ---------- */
+let level = '5', timerMax = 60, list = [], pool = [], running = false, timer = 0, score = 0, current = null;
+
+/* ---------- UI 選択ボタン ---------- */
+function setSel(sel, val) {
+  document.querySelectorAll(sel).forEach(b => b.classList.toggle('sel', String(b.dataset.lv || b.dataset.sec) === String(val)));
+}
+document.querySelectorAll('#levelSel .btnSel').forEach(b => b.onclick = () => { level = b.dataset.lv; setSel('#levelSel .btnSel', level); });
+document.querySelectorAll('#timerSel .btnSel').forEach(b => b.onclick = () => { timerMax = +b.dataset.sec; setSel('#timerSel .btnSel', timerMax); });
+
+/* ---------- データ読み込み ---------- */
+async function loadList() {
+  try {
+    const res = await fetch(`data/words-${level}.json`);
+    if (!res.ok) throw new Error('not found');
+    list = await res.json();
+  } catch (e) {
+    list = [{ en: 'sample', jp: 'サンプル' }];
+  }
+  pool = shuffle([...list]);
+}
+
+/* ---------- ゲームロジック ---------- */
+function nextQ() {
+  if (!running) return;
+  $('info').textContent = '';
+  $('opts').innerHTML = '';
+  if (pool.length === 0) pool = shuffle([...list]);
+  current = pool.pop();
+  $('jp').textContent = current.jp;
+  const choices = shuffle([current, ...shuffle(list.filter(x => x.en !== current.en)).slice(0,3)]);
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'opt'; btn.textContent = c.en;
+    btn.onclick = () => answer(btn, c);
+    $('opts').appendChild(btn);
+  });
+}
+function answer(btn, c) {
+  if (!running) return;
+  speak(c.en);
+  if (c.en === current.en) {
+    btn.classList.add('correct'); score++; $('score').textContent = score;
+    setTimeout(nextQ, 300);
+  } else {
+    btn.classList.add('wrong');
+    $('info').textContent = `${c.en} = ${c.jp}`;
+  }
+}
+function finish() {
+  running = false;
+  $('jp').textContent = 'TIME UP!';
+  $('opts').innerHTML = '';
+  $('startBtn').textContent = 'RESTART';
+  $('startBtn').style.display = 'inline-block';
+}
+
+/* ---------- スタート処理 ---------- */
+$('startBtn').onclick = async () => {
+  await loadList();
+  running = true; score = 0; $('score').textContent = 0; $('info').textContent = '';
+  timer = timerMax; $('timer').textContent = timerMax ? timerMax : '∞';
+  $('startBtn').style.display = 'none'; $('hud').style.display = 'flex';
+  nextQ();
+  if (timerMax) {
+    const t = setInterval(() => {
+      if (!running) { clearInterval(t); return; }
+      timer--; $('timer').textContent = timer;
+      if (timer <= 0) { clearInterval(t); finish(); }
+    }, 1000);
+  }
+};
+</script>
+</body>
+</html>
