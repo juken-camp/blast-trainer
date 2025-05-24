@@ -1,0 +1,438 @@
+one	一つの、一人の
+the	その
+you	あなた
+my	私の
+father	父
+do	する
+your	あなたの
+in	中に
+read	読む
+he	彼は
+see	見る、わかる
+it	それ
+mother	母
+name	名前
+like	好き
+how	どのくらい
+school	学校
+January	1月
+all	全て
+old	古い
+fruit	果物
+speak	話す
+where	どこで
+long	長い
+study	勉強する
+chair	椅子
+very	とても
+I	私
+our	私たちの
+year	年
+when	いつ
+a lot of	たくさんの
+nice	良い
+sing	歌う
+fine	良い
+right	正しい、右に
+want	欲しい
+red	赤い
+much	たくさん
+here	ここに
+July	7月
+cold	寒い
+write	書く
+station	駅
+color	色
+this	この
+she	彼女は
+look	見る
+many	多くの
+two	2
+teacher	先生
+morning	朝
+use	使う
+run	走る
+hungry	お腹が空いた
+fish	魚
+lunch	昼食
+have	持っている
+eat	食べる
+know	知っている
+usually	普通は
+season	季節
+book	本
+winter	冬
+stop	止まる
+three	3
+pencil	鉛筆
+please	どうぞ
+wall	壁
+meet	会う
+May	5月
+ride	乗る
+six	6
+always	いつも
+drink	飲む
+four	4
+sister	姉妹
+hospital	病院
+park	公園
+baseball	野球
+wash	洗う
+cake	ケーキ
+bag	バッグ
+Tuesday	火曜日
+try	試みる
+cook	料理する
+watch	見る
+nurse	看護師
+five	5
+seventeen	17
+table	テーブル
+place	場所
+cup	カップ
+green	緑
+we	私たちは
+fifty	50
+eleven	11
+picture	絵
+happy	幸せな
+Thursday	木曜日
+Japan	日本
+hot	暑い
+leave	出発する
+garbage	ゴミ
+hand	手
+thirty	30
+dinner	夕食
+Saturday	土曜日
+thirteen	13
+fourteen	14
+sorry	すみません
+large	大きな
+enjoy	楽しむ
+flower	花
+nineteen	19
+night	夜
+sheep	羊
+car	車
+library	図書館
+March	3月
+again	もう一度
+beautiful	美しい
+Friday	金曜日
+cool	かっこいい
+day	日
+October	10月
+get	得る
+map	地図
+family	家族
+boy	男の子
+white	白い
+house	家
+Monday	月曜日
+country	国
+box	箱
+bread	パン
+sixteen	16
+eighteen	18
+put	置く
+month	月
+cap	帽子
+fast	速い
+April	4月
+autumn	秋
+buy	買う
+swim	泳ぐ
+city	都市
+room	部屋
+brother	兄弟
+walk	歩く
+August	8月
+summer	夏
+blue	青い
+dog	犬
+ten	10
+eighty	80
+doctor	医者
+friend	友達
+sleep	寝る
+busy	忙しい
+play	遊ぶ
+help	助ける
+live	住む
+February	2月
+not	～ない
+way	方法
+fifteen	15
+stand	立つ
+small	小さい
+easy	簡単な
+bird	鳥
+time	時間
+welcome	歓迎する
+best	最高の
+homework	宿題
+November	11月
+December	12月
+Wednesday	水曜日
+June	6月
+together	一緒に
+tree	木
+black	黒い
+cow	牛
+Sunday	日曜日
+yellow	黄色い
+spring	春
+make	作る
+desk	机
+science	科学
+sixty	60
+twelve	12
+cat	猫
+window	窓
+subject	科目
+me	私を
+town	町
+that	あれ
+seven	7
+afternoon	午後
+why	なぜ
+nine	9
+girl	女の子
+up	上へ
+too	～も
+new	新しい
+player	選手
+seventy	70
+egg	卵
+ninety	90
+forty	40
+good	良い
+twenty	20
+breakfast	朝食
+everyone	みんな
+number	番号
+famous	有名な
+short	短い
+sad	悲しい
+is	～である
+eight	8
+sometimes	時々
+go	行く
+visit	訪問する
+to	～へ
+September	9月
+one	一つ
+apple	リンゴ
+evening	夜
+big	大きな
+left	左の
+strong	強い
+kind	親切な
+cloudy	曇っている
+rabbit	ウサギ
+bicycle	自転車
+sport	スポーツ
+brown	茶色の
+leg	脚
+street	通り
+dish	皿
+teach	教える
+heart	心臓
+English	英語
+bath	お風呂
+mouse	ネズミ
+math	数学
+same	同じ
+tooth	歯
+newspaper	新聞
+dream	夢
+draw	描く
+body	体
+clothes	服
+musician	音楽家
+monkey	サル
+fall	秋
+join	参加する
+and	そして
+bear	熊
+water	水
+nature	自然
+tired	疲れた
+chicken	鶏肉
+mountain	山
+rainy	雨の
+bridge	橋
+lake	湖
+fun	楽しい
+grandmother	祖母
+great	素晴らしい
+date	日付
+interesting	面白い
+job	仕事
+sea	海
+dictionary	辞書
+turn	回る
+farmer	農家
+well	上手に
+shop	店
+clock	時計
+favorite	お気に入りの
+hundred	百
+mouth	口
+sit	座る
+train	列車
+face	顔
+difficult	難しい
+ear	耳
+travel	旅行する
+listen	聞く
+museum	博物館
+island	島
+talk	話す
+salad	サラダ
+jump	跳ぶ
+pig	豚
+tea	紅茶
+star	星
+beef	牛肉
+nose	鼻
+horse	馬
+hat	帽子
+think	考える
+excuse	許す
+animal	動物
+trip	旅行
+vacation	休暇
+take	取る
+textbook	教科書
+life	人生
+practice	練習
+clean	綺麗にする
+wonderful	素晴らしい
+head	頭
+classroom	教室
+shoulder	肩
+vegetable	野菜
+food	食べ物
+future	未来
+king	王様
+birthday	誕生日
+river	川
+can	できる
+ship	船
+eye	目
+grandfather	祖父
+different	異なる
+soup	スープ
+second	2番目
+frog	カエル
+first	最初の
+festival	祭り
+knee	膝
+snowy	雪の
+weather	天気
+queen	女王
+event	出来事
+exciting	ワクワクする
+never	一度も～ない
+with	～と
+brush	ブラシでみがく
+really	本当に
+luck	運
+guess	推測する
+umbrella	傘
+grape	ぶどう
+tower	塔
+snake	蛇
+hard	難しい
+scientist	科学者
+cute	可愛い
+straight	まっすぐに
+funny	おかしい
+at	～に
+third	3番目の
+zoo	動物園
+delicious	美味しい
+down	下へ
+beach	浜辺
+be interested in	～に興味がある
+on	～の上
+who	だれ
+what	何
+am	～である
+under	～の下に
+for	～のために
+from	～から
+let's	～しましょう
+learn about	～について学ぶ
+purple	紫色の
+ruler	定規
+memory	記憶
+take out	持ち帰る
+How about	～はどうですか
+take a rest	休憩する
+sunny	晴天の
+subway	地下鉄
+to go	テイクアウト
+on weekends	週末に
+airplane	飛行機
+learn a lot from	～から多くを学ぶ
+walk to	～まで歩く
+world	世界
+on your left	左側に
+for here	店内で
+drum	太鼓
+on the way	途中で
+stand up	立ち上がる
+at noon	正午に
+farewell party	送別会
+temple	寺院
+by	～によって
+field trip	校外学習
+elementary school	小学校
+high school	高校
+wait for	待つ
+Kindergarten	幼稚園
+bookstore	書店
+school festival	学校祭
+soft	柔らかい
+and so on	など
+be	～である
+say again	もう一度言う
+get up	起きる
+worry about	～を心配する
+spell	綴る
+check out	調べる
+with a smile	笑顔で
+reading	読書
+entrance ceremony	入学式
+sweet	甘い
+go straight	まっすぐ行く
+junior high school	中学校
+by bus	バスで
+write down	書き留める
+go back to	戻る
+by car	車で
+tiger	虎
+was	～だった
+look at	見る
+sit down	座る
+stay up	夜更かしする
+shopping	買い物
+classmate	クラスメイト
+out	外
+drama	劇
+bean	豆
+Japanese	日本の
+be excited	興奮している
+listen to	～を聞く
+have a headache	頭痛がする
+telephone	電話
+on your right	右側
+about	～について
+between A and B	AとBの間
+supermarket	スーパーマーケット
+help with	～を手伝う
+bike	自転車
