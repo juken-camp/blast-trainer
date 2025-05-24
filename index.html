@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLAST TRAINER</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BLAST TRAINER</h1>
+        </header>
+
+        <section id="settings">
+            <div class="level-selection">
+                <h2>レベル選択</h2>
+                <button data-level="5">英検5級</button>
+                <button data-level="4">英検4級</button>
+                <button data-level="3">英検3級</button>
+                <button data-level="s2">英検準2級</button>
+                <button data-level="2">英検2級</button>
+                <button data-level="s1">英検準1級</button>
+                <button data-level="1">英検1級</button>
+            </div>
+            <div class="timer-selection">
+                <h2>タイマー選択</h2>
+                <button data-time="60">1分</button>
+                <button data-time="180">3分</button>
+                <button data-time="300">5分</button>
+                <button data-time="600">10分</button>
+                <button data-time="0">無制限</button>
+            </div>
+            <button id="startButton">ゲーム開始</button>
+        </section>
+
+        <main id="gameArea" class="hidden">
+            <div id="timerDisplay">タイマー: --:--</div>
+            <div id="wordDisplay">表示される英単語</div>
+            <div id="choicesContainer">
+                <button class="choice-btn"></button>
+                <button class="choice-btn"></button>
+                <button class="choice-btn"></button>
+                <button class="choice-btn"></button>
+            </div>
+            <div id="feedbackArea" class="hidden">
+                <p id="answerText">ここに訳が表示されます</p>
+                <p id="sourceText">（出典: source）</p>
+            </div>
+            <div id="scoreArea">スコア: 0</div>
+        </main>
+
+        <section id="resultArea" class="hidden">
+            <h2>結果</h2>
+            <p id="finalScore">最終スコア: 0</p>
+            <p id="correctCount">正解数: 0</p>
+            <p id="totalQuestions">問題数: 0</p>
+            <p id="accuracy">正解率: 0%</p>
+            <button id="restartButton">もう一度プレイ</button>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
