@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>BLAST TRAINER</title>
+
+  <!-- ===== CSS 省略（前回と同じ） ===== -->
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}body{font-family:sans-serif;background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}.container{max-width:800px;width:100%;text-align:center;}h1{font-size:3em;color:#ffd700;text-shadow:2px 2px 4px rgba(0,0,0,.5);margin-bottom:40px;font-weight:bold;letter-spacing:2px;cursor:pointer}.level-btn,.timer-btn,.dir-btn,.start-btn,.restart-btn{border:none;cursor:pointer;font-weight:bold;transition:.3s;color:#fff}.level-btn,.timer-btn,.dir-btn{padding:12px 20px;border-radius:25px;background:rgba(255,255,255,.2);font-size:16px;backdrop-filter:blur(10px)}.level-btn:hover,.timer-btn:hover,.dir-btn:hover{background:rgba(255,255,255,.3);transform:translateY(-2px)}.level-btn.selected,.timer-btn.selected,.dir-btn.selected{background:#00bcd4;box-shadow:0 4px 15px rgba(0,188,212,.4)}.start-btn{padding:15px 40px;font-size:20px;border-radius:30px;background:linear-gradient(45deg,#4CAF50,#45a049);box-shadow:0 4px 15px rgba(76,175,80,.4)}.start-btn:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(76,175,80,.6)}.start-btn:disabled{background:rgba(255,255,255,.3);cursor:not-allowed;transform:none;box-shadow:none}.restart-btn{padding:15px 40px;font-size:20px;border-radius:30px;background:linear-gradient(45deg,#2196F3,#1976D2);box-shadow:0 4px 15px rgba(33,150,243,.4)}.restart-btn:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(33,150,243,.6)}.setup-screen{display:block}.game-screen,.result-screen{display:none}.selection h2{margin-bottom:20px}.buttons{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:20px}.progress-bar{width:100%;height:10px;background:rgba(255,255,255,.2);border-radius:5px;margin-bottom:30px;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#4CAF50,#45a049);width:0%;transition:width .3s}.game-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;font-size:18px;font-weight:bold}.timer{color:#ffd700}.score{color:#4CAF50}.word-display{background:rgba(255,255,255,.1);border-radius:20px;padding:40px;margin-bottom:30px;backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.2)}.word{font-size:3em;font-weight:bold;color:#ffd700;text-shadow:2px 2px 4px rgba(0,0,0,.5);margin-bottom:20px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:30px}.choice-btn{padding:20px;font-size:18px;border:none;border-radius:15px;background:rgba(255,255,255,.2);color:#fff;cursor:pointer;transition:.3s;border:2px solid rgba(255,255,255,.3);backdrop-filter:blur(10px);font-weight:bold}.choice-btn:hover:not(:disabled){background:rgba(255,255,255,.3);transform:translateY(-2px)}.choice-btn.correct{background:linear-gradient(45deg,#4CAF50,#45a049);border-color:#4CAF50}.choice-btn.incorrect{background:linear-gradient(45deg,#f44336,#d32f2f);border-color:#f44336}.answer-display{margin-top:20px;padding:15px;background:rgba(0,0,0,.3);border-radius:10px;font-size:18px;font-weight:bold;color:#ffd700}.final-score{font-size:4em;color:#ffd700;margin-bottom:20px}@media(max-width:768px){
+  h1{font-size:2em}
+  .word{font-size:2em}
+  .choices{grid-template-columns:1fr}
+  
+  /* 級選択ボタンのレイアウト */
+  .selection:nth-child(1) .buttons{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    max-width:100%;
+  }
+  
+  /* 時間選択ボタンのレイアウト */
+  .selection:nth-child(2) .buttons{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    max-width:100%;
+  }
+  
+  /* 出題方向ボタンのレイアウト */
+  .selection:nth-child(3) .buttons{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+    max-width:100%;
+  }
+  
+  /* ボタンサイズの調整 */
+  .level-btn,.timer-btn,.dir-btn{
+    padding:10px 8px;
+    font-size:14px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  
+  /* コンテナの調整 */
+  .container{
+    padding:10px;
+  }
+  
+  .selection{
+    margin-bottom:25px;
+  }
+  
+  .selection h2{
+    margin-bottom:15px;
+    font-size:1.2em;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <h1 id="title">BLAST TRAINER</h1>
+
+  <!-- セットアップ -->
+  <div class="setup-screen" id="setupScreen">
+    <div class="selection">
+      <h2>級を選択</h2>
+      <div class="buttons">
+        <button class="level-btn" data-level="5">英検5級</button>
+        <button class="level-btn" data-level="4">4級</button>
+        <button class="level-btn" data-level="3">3級</button>
+        <button class="level-btn" data-level="p2">準2級</button>
+        <button class="level-btn" data-level="2">2級</button>
+        <button class="level-btn" data-level="p1">準1級</button>
+        <button class="level-btn" data-level="1">1級</button>
+      </div>
+    </div>
+
+    <div class="selection">
+      <h2>時間制限</h2>
+      <div class="buttons">
+        <button class="timer-btn" data-time="60">1分</button>
+        <button class="timer-btn" data-time="180">3分</button>
+        <button class="timer-btn" data-time="300">5分</button>
+        <button class="timer-btn" data-time="600">10分</button>
+        <button class="timer-btn" data-time="0">無制限</button>
+      </div>
+    </div>
+
+    <div class="selection">
+      <h2>出題方向</h2>
+      <div class="buttons">
+        <button class="dir-btn selected" data-mode="en-ja">英語 ▶ 日本語</button>
+        <button class="dir-btn" data-mode="ja-en">日本語 ▶ 英語</button>
+      </div>
+    </div>
+
+    <button class="start-btn" id="startBtn" disabled>ゲーム開始</button>
+  </div>
+
+  <!-- ゲーム画面 -->
+  <div class="game-screen" id="gameScreen">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="game-info">
+      <div class="timer" id="timerDisplay">時間: --</div>
+      <div class="score" id="scoreDisplay">スコア: 0/0</div>
+    </div>
+
+    <div class="word-display">
+      <div class="word" id="currentWord">Loading...</div>
+      <div class="answer-display" id="answerDisplay" style="display:none;"></div>
+    </div>
+
+    <div class="choices" id="choices"></div>
+  </div>
+
+  <!-- 結果画面 -->
+  <div class="result-screen" id="resultScreen">
+    <h2>ゲーム終了！</h2>
+    <div class="final-score" id="finalScore">0/0</div>
+    <div id="finalMessage">お疲れ様でした！</div>
+    <button class="restart-btn" id="restartBtn">もう一度プレイ</button>
+  </div>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+/* ---------- ユーティリティ ---------- */
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a};  
+
+/* ---------- メインクラス ---------- */
+class BlastTrainer{
+  constructor(){
+    this.level=null;this.timeLimit=null;this.playMode='en-ja';
+    this.words=[];this.queue=[];this.idx=0;this.score=0;this.attempts=0;
+    this.timeLeft=0;this.timerId=null;this.playing=false;
+
+    /* イベント */
+    document.getElementById('title').addEventListener('click',()=>location.reload());
+    document.querySelectorAll('.level-btn').forEach(b=>b.addEventListener('click',()=>this.select(b,'level')));
+    document.querySelectorAll('.timer-btn').forEach(b=>b.addEventListener('click',()=>this.select(b,'time')));
+    document.querySelectorAll('.dir-btn'  ).forEach(b=>b.addEventListener('click',()=>this.select(b,'dir')));
+    document.getElementById('startBtn').addEventListener('click',()=>this.start());
+    document.getElementById('restartBtn').addEventListener('click',()=>this.restart());
+  }
+
+  select(btn,type){
+    const cls=type==='level'?'level-btn':type==='time'?'timer-btn':'dir-btn';
+    document.querySelectorAll('.'+cls).forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    if(type==='level') this.level=btn.dataset.level;
+    if(type==='time' ) this.timeLimit=parseInt(btn.dataset.time,10);
+    if(type==='dir'  ) this.playMode=btn.dataset.mode;
+    document.getElementById('startBtn').disabled=!(this.level&&this.timeLimit!==null);
+  }
+
+  async loadWords(){
+    try{
+      const r=await fetch(`./data/words-${this.level}.txt`);
+      if(!r.ok) throw 0;
+      const txt=await r.text();
+      this.words=txt.trim().split('\n').map(l=>{
+        const [en,ja]=l.split('\t');return{english:en?.trim(),japanese:ja?.trim()}
+      }).filter(w=>w.english&&w.japanese);
+      if(!this.words.length) throw 0;
+    }catch{
+      console.warn('fallback sample');
+      this.words=Array.from({length:50},(_,i)=>({english:`sample${i+1}`,japanese:`サンプル${i+1}`}));
+    }
+  }
+
+  async start(){
+    document.getElementById('setupScreen').style.display='none';
+    document.getElementById('gameScreen').style.display='block';
+    await this.loadWords();
+    this.queue=shuffle(this.words.slice());this.idx=0;
+    this.score=0;this.attempts=0;this.playing=true;
+    this.timeLeft=this.timeLimit;if(this.timeLimit>0)this.startTimer(); else this.updateTimer();
+    this.nextQ();
+  }
+
+  startTimer(){this.updateTimer();this.timerId=setInterval(()=>{this.timeLeft--;this.updateTimer();if(this.timeLeft<=0)this.end();},1000);}
+  updateTimer(){
+    const el=document.getElementById('timerDisplay');
+    if(this.timeLimit===0){el.textContent='時間: 無制限';return;}
+    const m=Math.floor(this.timeLeft/60);const s=String(this.timeLeft%60).padStart(2,'0');
+    el.textContent=`時間: ${m}:${s}`;
+  }
+
+  nextQ(){
+    if(!this.playing)return;
+    if(this.idx>=this.queue.length){shuffle(this.queue);this.idx=0;}
+    this.current=this.queue[this.idx++];
+    const disp=this.playMode==='en-ja'?this.current.english:this.current.japanese;
+    const ans =this.playMode==='en-ja'?this.current.japanese:this.current.english;
+    document.getElementById('currentWord').textContent=disp;
+    const ad=document.getElementById('answerDisplay');ad.style.display='none';ad.textContent='';
+
+    /* 日本語▶英語モードでは出題時の発音を抑制 */
+    if(this.playMode==='en-ja') this.speak(this.current.english);
+
+    /* 選択肢 */
+    const pool=this.words.filter(w=>(this.playMode==='en-ja'?w.japanese:w.english)!==ans);
+    const choices=shuffle([ans,...shuffle(pool).slice(0,3).map(w=>this.playMode==='en-ja'?w.japanese:w.english)]);
+    const box=document.getElementById('choices');box.innerHTML='';
+    choices.forEach(c=>{
+      const b=document.createElement('button');b.className='choice-btn';b.textContent=c;
+      b.addEventListener('click',()=>this.judge(b,c,ans));box.appendChild(b);
+    });
+    this.updateScore();
+  }
+
+  judge(btn,sel,correct){
+    if(!this.playing)return;
+    const ok=sel===correct;this.attempts++;
+
+    /* 対応する英語を取得して発音用・表示用に使う */
+    const obj=this.words.find(w=>(this.playMode==='en-ja'?w.japanese:w.english)===sel);
+
+    if(ok){this.score++;this.speak(this.current.english);}
+    else{ if(obj) this.speak(obj.english); }
+
+    btn.classList.add(ok?'correct':'incorrect'); if(!ok) btn.disabled=true;
+
+    /* メッセージ生成: 不正解時は選択語の正しい訳を必ず表示 */
+    let msg;
+    if(ok){
+      msg=`正解！ ${this.current.english} = ${this.current.japanese}`;
+    }else{
+      const wrongEn = obj?.english ?? '(?)';
+      const wrongJa = obj?.japanese ?? sel;
+      msg=`あなたの回答: ${wrongEn} = ${wrongJa} ✖`;
+    }
+    this.showMsg(msg,ok);
+    this.updateScore();
+
+    if(ok){
+      document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+      setTimeout(()=>this.nextQ(),900);
+    }
+  }
+
+  showMsg(txt,ok){
+    const el=document.getElementById('answerDisplay');
+    el.textContent=txt; el.style.display='block'; el.style.color=ok?'#4CAF50':'#ffd700';
+  }
+
+  speak(word){
+    if(!('speechSynthesis'in window))return;
+    const vs=speechSynthesis.getVoices();
+    const v=vs.find(v=>/Google US English|en-US|en_GB/i.test(v.name+v.lang));
+    const u=new SpeechSynthesisUtterance(word);u.lang='en-US';u.rate=0.9;if(v)u.voice=v;
+    speechSynthesis.speak(u);
+  }
+
+  updateScore(){
+    document.getElementById('scoreDisplay').textContent=`スコア: ${this.score}/${this.attempts}`;
+    const p=this.attempts?this.score/this.attempts*100:0;
+    document.getElementById('progressFill').style.width=p+'%';
+  }
+
+  end(){
+    this.playing=false;if(this.timerId)clearInterval(this.timerId);
+    document.getElementById('gameScreen').style.display='none';
+    document.getElementById('resultScreen').style.display='block';
+    const pct=this.attempts?Math.round(this.score/this.attempts*100):0;
+    document.getElementById('finalScore').textContent=`${this.score}/${this.attempts} (${pct}%)`;
+    const m=pct>=90?'素晴らしい！完璧に近い成績です！':pct>=70?'とても良い成績です！':
+            pct>=50?'良い調子です！もう少し頑張りましょう！':'練習を重ねて頑張りましょう！';
+    document.getElementById('finalMessage').textContent=m;
+  }
+
+  restart(){
+    if(this.timerId)clearInterval(this.timerId);
+    document.getElementById('resultScreen').style.display='none';
+    document.getElementById('setupScreen').style.display='block';
+    document.querySelectorAll('.level-btn,.timer-btn').forEach(b=>b.classList.remove('selected'));
+    document.getElementById('progressFill').style.width='0%';
+    document.getElementById('startBtn').disabled=true;
+    this.level=null;this.timeLimit=null;this.score=0;this.attempts=0;
+  }
+}
+
+/* 起動 */
+new BlastTrainer();
+</script>
+</body>
+</html>
