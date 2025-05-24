@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLAST TRAINER</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 40px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .setup-screen {
+            display: block;
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .level-selection {
+            margin-bottom: 30px;
+        }
+
+        .level-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .level-btn, .timer-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .level-btn:hover, .timer-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .level-btn.selected, .timer-btn.selected {
+            background: #00bcd4;
+            box-shadow: 0 4px 15px rgba(0,188,212,0.4);
+        }
+
+        .timer-selection {
+            margin-bottom: 30px;
+        }
+
+        .timer-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .start-btn {
+            padding: 15px 40px;
+            font-size: 20px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76,175,80,0.4);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(76,175,80,0.6);
+        }
+
+        .start-btn:disabled {
+            background: rgba(255,255,255,0.3);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .timer {
+            color: #ffd700;
+        }
+
+        .score {
+            color: #4CAF50;
+        }
+
+        .word-display {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .word {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+
+        .choices {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .choice-btn {
+            padding: 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+            font-weight: bold;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .choice-btn.correct {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-color: #4CAF50;
+        }
+
+        .choice-btn.incorrect {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            border-color: #f44336;
+        }
+
+        .answer-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .final-score {
+            font-size: 4em;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            font-size: 20px;
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(33,150,243,0.4);
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(33,150,243,0.6);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .word {
+                font-size: 2em;
+            }
+            .choices {
+                grid-template-columns: 1fr;
+            }
+            .level-buttons, .timer-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BLAST TRAINER</h1>
+        
+        <!-- セットアップ画面 -->
+        <div class="setup-screen" id="setupScreen">
+            <div class="level-selection">
+                <h2 style="margin-bottom: 20px;">級を選択</h2>
+                <div class="level-buttons">
+                    <button class="level-btn" data-level="5">英検5級</button>
+                    <button class="level-btn" data-level="4">4級</button>
+                    <button class="level-btn" data-level="3">3級</button>
+                    <button class="level-btn" data-level="p2">準2級</button>
+                    <button class="level-btn" data-level="2">2級</button>
+                    <button class="level-btn" data-level="p1">準1級</button>
+                    <button class="level-btn" data-level="1">1級</button>
+                </div>
+            </div>
+
+            <div class="timer-selection">
+                <h2 style="margin-bottom: 20px;">時間制限</h2>
+                <div class="timer-buttons">
+                    <button class="timer-btn" data-time="60">1分</button>
+                    <button class="timer-btn" data-time="180">3分</button>
+                    <button class="timer-btn" data-time="300">5分</button>
+                    <button class="timer-btn" data-time="600">10分</button>
+                    <button class="timer-btn" data-time="0">無制限</button>
+                </div>
+            </div>
+
+            <button class="start-btn" id="startBtn" disabled>ゲーム開始</button>
+        </div>
+
+        <!-- ゲーム画面 -->
+        <div class="game-screen" id="gameScreen">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="game-info">
+                <div class="timer" id="timerDisplay">時間: --</div>
+                <div class="score" id="scoreDisplay">スコア: 0/0</div>
+            </div>
+
+            <div class="word-display">
+                <div class="word" id="currentWord">Loading...</div>
+                <div class="answer-display" id="answerDisplay" style="display: none;"></div>
+            </div>
+
+            <div class="choices" id="choices">
+                <!-- 選択肢はJavaScriptで動的に生成 -->
+            </div>
+        </div>
+
+        <!-- 結果画面 -->
+        <div class="result-screen" id="resultScreen">
+            <h2>ゲーム終了！</h2>
+            <div class="final-score" id="finalScore">0/0</div>
+            <div id="finalMessage">お疲れ様でした！</div>
+            <button class="restart-btn" id="restartBtn">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <script>
+        class BlastTrainer {
+            constructor() {
+                this.selectedLevel = null;
+                this.selectedTime = null;
+                this.words = [];
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.totalQuestions = 0;
+                this.timer = null;
+                this.timeLeft = 0;
+                this.gameActive = false;
+                
+                this.initEventListeners();
+            }
+
+            initEventListeners() {
+                // 級選択ボタン
+                document.querySelectorAll('.level-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.selectLevel(btn));
+                });
+
+                // タイマー選択ボタン
+                document.querySelectorAll('.timer-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.selectTimer(btn));
+                });
+
+                // ゲーム開始ボタン
+                document.getElementById('startBtn').addEventListener('click', () => this.startGame());
+
+                // リスタートボタン
+                document.getElementById('restartBtn').addEventListener('click', () => this.restart());
+            }
+
+            selectLevel(btn) {
+                document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                this.selectedLevel = btn.dataset.level;
+                this.checkStartButtonState();
+            }
+
+            selectTimer(btn) {
+                document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                this.selectedTime = parseInt(btn.dataset.time);
+                this.checkStartButtonState();
+            }
+
+            checkStartButtonState() {
+                const startBtn = document.getElementById('startBtn');
+                if (this.selectedLevel && this.selectedTime !== null) {
+                    startBtn.disabled = false;
+                } else {
+                    startBtn.disabled = true;
+                }
+            }
+
+            async loadWords() {
+                try {
+                    const response = await fetch(`data/words-${this.selectedLevel}.txt`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const text = await response.text();
+                    
+                    this.words = text.trim().split('\n').map(line => {
+                        const parts = line.split('\t');
+                        return {
+                            english: parts[0],
+                            japanese: parts[1]
+                        };
+                    }).filter(word => word.english && word.japanese);
+
+                    if (this.words.length === 0) {
+                        throw new Error('No valid words found in the file');
+                    }
+
+                    return true;
+                } catch (error) {
+                    console.error('Error loading words:', error);
+                    // テスト用のサンプルデータ
+                    this.words = this.getSampleWords();
+                    return true;
+                }
+            }
+
+            getSampleWords() {
+                const sampleWords = {
+                    '5': [
+                        { english: 'apple', japanese: 'りんご' },
+                        { english: 'book', japanese: '本' },
+                        { english: 'cat', japanese: '猫' },
+                        { english: 'dog', japanese: '犬' },
+                        { english: 'eat', japanese: '食べる' }
+                    ],
+                    '4': [
+                        { english: 'beautiful', japanese: '美しい' },
+                        { english: 'important', japanese: '重要な' },
+                        { english: 'interesting', japanese: '興味深い' },
+                        { english: 'different', japanese: '異なる' },
+                        { english: 'necessary', japanese: '必要な' }
+                    ],
+                    '3': [
+                        { english: 'environment', japanese: '環境' },
+                        { english: 'communication', japanese: 'コミュニケーション' },
+                        { english: 'technology', japanese: '技術' },
+                        { english: 'opportunity', japanese: '機会' },
+                        { english: 'relationship', japanese: '関係' }
+                    ]
+                };
+                
+                return sampleWords[this.selectedLevel] || sampleWords['3'];
+            }
+
+            async startGame() {
+                document.getElementById('setupScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'block';
+                
+                await this.loadWords();
+                
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.totalQuestions = 0;
+                this.gameActive = true;
+                this.timeLeft = this.selectedTime;
+
+                if (this.selectedTime > 0) {
+                    this.startTimer();
+                }
+
+                this.showNextQuestion();
+            }
+
+            startTimer() {
+                this.updateTimerDisplay();
+                this.timer = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateTimerDisplay();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+
+            updateTimerDisplay() {
+                const timerDisplay = document.getElementById('timerDisplay');
+                if (this.selectedTime === 0) {
+                    timerDisplay.textContent = '時間: 無制限';
+                } else {
+                    const minutes = Math.floor(this.timeLeft / 60);
+                    const seconds = this.timeLeft % 60;
+                    timerDisplay.textContent = `時間: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }
+
+            showNextQuestion() {
+                if (!this.gameActive) return;
+
+                const word = this.words[Math.floor(Math.random() * this.words.length)];
+                const choices = this.generateChoices(word);
+                
+                document.getElementById('currentWord').textContent = word.english;
+                document.getElementById('answerDisplay').style.display = 'none';
+                
+                const choicesContainer = document.getElementById('choices');
+                choicesContainer.innerHTML = '';
+                
+                choices.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.textContent = choice;
+                    btn.addEventListener('click', () => this.selectAnswer(choice, word.japanese, btn));
+                    choicesContainer.appendChild(btn);
+                });
+
+                this.updateScore();
+            }
+
+            generateChoices(correctWord) {
+                const choices = [correctWord.japanese];
+                const otherWords = this.words.filter(w => w.japanese !== correctWord.japanese);
+                
+                while (choices.length < 4 && otherWords.length > 0) {
+                    const randomWord = otherWords[Math.floor(Math.random() * otherWords.length)];
+                    if (!choices.includes(randomWord.japanese)) {
+                        choices.push(randomWord.japanese);
+                    }
+                    otherWords.splice(otherWords.indexOf(randomWord), 1);
+                }
+
+                // 選択肢をシャッフル
+                for (let i = choices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [choices[i], choices[j]] = [choices[j], choices[i]];
+                }
+
+                return choices;
+            }
+
+            selectAnswer(selectedAnswer, correctAnswer, btn) {
+                if (!this.gameActive) return;
+
+                this.totalQuestions++;
+                const isCorrect = selectedAnswer === correctAnswer;
+                
+                if (isCorrect) {
+                    this.score++;
+                    btn.classList.add('correct');
+                } else {
+                    btn.classList.add('incorrect');
+                    // 正解の選択肢をハイライト
+                    document.querySelectorAll('.choice-btn').forEach(button => {
+                        if (button.textContent === correctAnswer) {
+                            button.classList.add('correct');
+                        }
+                    });
+                }
+
+                // 答えを表示
+                const answerDisplay = document.getElementById('answerDisplay');
+                answerDisplay.textContent = `正解: ${correctAnswer}`;
+                answerDisplay.style.display = 'block';
+
+                // 発音を再生（実際の音声ファイルがある場合）
+                this.playPronunciation(document.getElementById('currentWord').textContent);
+
+                // すべてのボタンを無効化
+                document.querySelectorAll('.choice-btn').forEach(button => {
+                    button.disabled = true;
+                });
+
+                // 1.5秒後に次の問題へ
+                setTimeout(() => {
+                    if (this.gameActive) {
+                        this.showNextQuestion();
+                    }
+                }, 1500);
+            }
+
+            playPronunciation(word) {
+                // Web Speech APIを使用して発音を再生
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.8;
+                    speechSynthesis.speak(utterance);
+                }
+            }
+
+            updateScore() {
+                document.getElementById('scoreDisplay').textContent = `スコア: ${this.score}/${this.totalQuestions}`;
+                
+                if (this.totalQuestions > 0) {
+                    const progress = (this.score / this.totalQuestions) * 100;
+                    document.getElementById('progressFill').style.width = `${progress}%`;
+                }
+            }
+
+            endGame() {
+                this.gameActive = false;
+                if (this.timer) {
+                    clearInterval(this.timer);
+                }
+
+                document.getElementById('gameScreen').style.display = 'none';
+                document.getElementById('resultScreen').style.display = 'block';
+                
+                const percentage = this.totalQuestions > 0 ? Math.round((this.score / this.totalQuestions) * 100) : 0;
+                document.getElementById('finalScore').textContent = `${this.score}/${this.totalQuestions} (${percentage}%)`;
+                
+                let message = '';
+                if (percentage >= 90) {
+                    message = '素晴らしい！完璧に近い成績です！';
+                } else if (percentage >= 70) {
+                    message = 'とても良い成績です！';
+                } else if (percentage >= 50) {
+                    message = '良い調子です！もう少し頑張りましょう！';
+                } else {
+                    message = '練習を重ねて頑張りましょう！';
+                }
+                
+                document.getElementById('finalMessage').textContent = message;
+            }
+
+            restart() {
+                document.getElementById('resultScreen').style.display = 'none';
+                document.getElementById('setupScreen').style.display = 'block';
+                
+                // リセット
+                this.selectedLevel = null;
+                this.selectedTime = null;
+                document.querySelectorAll('.level-btn, .timer-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('progressFill').style.width = '0%';
+            }
+        }
+
+        // ゲーム初期化
+        const game = new BlastTrainer();
+    </script>
+</body>
+</html>
