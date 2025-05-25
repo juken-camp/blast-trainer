@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>BLAST TRAINER - English Learning Fun!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient-start: #f0f4f8; /* Light Grayish Blue */
+      --bg-gradient-end: #e6e9f0; /* Lighter Grayish Blue */
+      --primary-color: #6A82FB; /* Soft Blue */
+      --secondary-color: #FCB69F; /* Soft Orange/Peach */
+      --accent-color: #84E1BC; /* Mint Green */
+      --text-color: #3D4758; /* Dark Slate Gray */
+      --text-light-color: #ffffff;
+      --correct-color: #5CB85C; /* Success Green */
+      --incorrect-color: #D9534F; /* Danger Red */
+      --disabled-color: #B0BEC5; /* Light Gray */
+      --card-bg: #ffffff;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --font-family: 'Nunito', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 700px;
+      width: 100%;
+      text-align: center;
+      padding: 15px;
+    }
+
+    h1 {
+      font-size: 2.8em;
+      color: var(--primary-color);
+      margin-bottom: 30px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    h1:hover {
+      color: var(--secondary-color);
+    }
+
+    h2 {
+      font-size: 1.6em;
+      margin-bottom: 20px;
+      color: var(--text-color);
+      font-weight: 700;
+    }
+
+    .setup-screen, .game-screen, .result-screen {
+      background-color: var(--card-bg);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px var(--shadow-color);
+      width: 100%;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .setup-screen { display: block; }
+    .game-screen, .result-screen { display: none; }
+
+    .selection {
+      margin-bottom: 30px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease-out;
+      color: var(--text-color);
+      padding: 12px 20px;
+      border-radius: 25px; /* More rounded */
+      background-color: #f0f0f0; /* Light gray for unselected */
+      font-size: 1em;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .btn.selected {
+      background-color: var(--primary-color);
+      color: var(--text-light-color);
+      box-shadow: 0 4px 12px rgba(var(--primary-color-rgb, 106, 130, 251), 0.4); /* Using RGB for opacity */
+      transform: scale(1.05);
+    }
+    /* Helper for JS to set primary color rgb */
+    :root { --primary-color-rgb: 106, 130, 251; }
+
+
+    .start-btn, .restart-btn {
+      padding: 15px 35px;
+      font-size: 1.2em;
+      border-radius: 30px;
+      color: var(--text-light-color);
+      font-weight: 700;
+      box-shadow: 0 4px 15px var(--shadow-color);
+    }
+
+    .start-btn {
+      background-color: var(--accent-color);
+    }
+    .start-btn:hover {
+      background-color: #68c9a9; /* Darker mint */
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(132, 225, 188, 0.5);
+    }
+    .start-btn:disabled {
+      background-color: var(--disabled-color);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      color: #777;
+    }
+
+    .restart-btn {
+      background-color: var(--secondary-color);
+    }
+    .restart-btn:hover {
+      background-color: #fa9f85; /* Darker peach */
+       transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(252, 182, 159, 0.5);
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background-color: #e0e0e0;
+      border-radius: 6px;
+      margin-bottom: 25px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+      width: 0%;
+      transition: width 0.3s ease-in-out;
+      border-radius: 6px;
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      font-size: 1.1em;
+      font-weight: 600;
+    }
+    .timer { color: var(--primary-color); }
+    .score { color: var(--secondary-color); }
+
+    .word-display {
+      background-color: #f8f9fa; /* Very light gray */
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 25px;
+      border: 1px solid #eee;
+      min-height: 150px; /* Ensure space for word and answer */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .word {
+      font-size: 2.5em;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 15px;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    .choice-btn {
+      padding: 18px;
+      font-size: 1.1em;
+      border: 1px solid #ddd;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-weight: 600;
+      border-radius: 12px; /* Slightly less rounded than control buttons */
+    }
+    .choice-btn:hover:not(:disabled) {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+    .choice-btn.correct {
+      background-color: var(--correct-color);
+      border-color: var(--correct-color);
+      color: var(--text-light-color);
+      animation: pulse 0.5s;
+    }
+    .choice-btn.incorrect {
+      background-color: var(--incorrect-color);
+      border-color: var(--incorrect-color);
+      color: var(--text-light-color);
+      animation: shake 0.3s;
+    }
+    .choice-btn:disabled:not(.correct):not(.incorrect) {
+      background-color: #f5f5f5;
+      color: var(--disabled-color);
+      cursor: not-allowed;
+    }
+
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .answer-display {
+      margin-top: 15px;
+      padding: 12px;
+      background-color: rgba(0,0,0,0.03);
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      color: var(--text-color);
+      min-height: 2em; /* Ensure space for text */
+    }
+    .answer-display.correct-text { color: var(--correct-color); }
+    .answer-display.incorrect-text { color: var(--incorrect-color); }
+
+
+    .result-screen h2 {
+      font-size: 2em;
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+    .final-score {
+      font-size: 3em;
+      color: var(--secondary-color);
+      margin-bottom: 15px;
+      font-weight: 800;
+    }
+    #finalMessage {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.2em; margin-bottom:25px; }
+      h2 { font-size: 1.4em; margin-bottom:15px; }
+      .word { font-size: 2em; }
+      .choices { grid-template-columns: 1fr; }
+      
+      .setup-screen, .game-screen, .result-screen { padding: 20px; }
+
+      .selection:nth-child(1) .buttons,
+      .selection:nth-child(2) .buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+        gap: 8px;
+      }
+      .selection:nth-child(3) .buttons {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .btn { padding: 10px 15px; font-size: 0.9em; }
+      .start-btn, .restart-btn { padding: 12px 30px; font-size: 1.1em; }
+      .choice-btn { padding: 15px; font-size: 1em;}
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <h1 id="title">BLAST TRAINER</h1>
+
+  <div class="setup-screen" id="setupScreen">
+    <div class="selection">
+      <h2>レベルを選んでね！</h2>
+      <div class="buttons">
+        <button class="btn level-btn" data-level="5">英検5級</button>
+        <button class="btn level-btn" data-level="4">4級</button>
+        <button class="btn level-btn" data-level="3">3級</button>
+        <button class="btn level-btn" data-level="p2">準2級</button>
+        <button class="btn level-btn" data-level="2">2級</button>
+        <button class="btn level-btn" data-level="p1">準1級</button>
+        <button class="btn level-btn" data-level="1">1級</button>
+      </div>
+    </div>
+
+    <div class="selection">
+      <h2>時間制限は？</h2>
+      <div class="buttons">
+        <button class="btn timer-btn" data-time="60">1分</button>
+        <button class="btn timer-btn" data-time="180">3分</button>
+        <button class="btn timer-btn" data-time="300">5分</button>
+        <button class="btn timer-btn" data-time="600">10分</button>
+        <button class="btn timer-btn" data-time="0">無制限</button>
+      </div>
+    </div>
+
+    <div class="selection">
+      <h2>どっちで挑戦？</h2>
+      <div class="buttons">
+        <button class="btn dir-btn selected" data-mode="en-ja">英語 ▶ 日本語</button>
+        <button class="btn dir-btn" data-mode="ja-en">日本語 ▶ 英語</button>
+      </div>
+    </div>
+
+    <button class="start-btn" id="startBtn" disabled>スタート！</button>
+  </div>
+
+  <div class="game-screen" id="gameScreen">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="game-info">
+      <div class="timer" id="timerDisplay">時間: --</div>
+      <div class="score" id="scoreDisplay">スコア: 0/0</div>
+    </div>
+
+    <div class="word-display">
+      <div class="word" id="currentWord">Loading...</div>
+      <div class="answer-display" id="answerDisplay" style="display:none;"></div>
+    </div>
+
+    <div class="choices" id="choices">
+      </div>
+  </div>
+
+  <div class="result-screen" id="resultScreen">
+    <h2>ゲーム終了！</h2>
+    <div class="final-score" id="finalScore">0/0</div>
+    <div id="finalMessage">お疲れ様でした！</div>
+    <button class="restart-btn" id="restartBtn">もう一度挑戦！</button>
+  </div>
+</div>
+
+<script>
+/* ---------- Audio Context & Sound Effects ---------- */
+let audioCtx;
+const sounds = {
+  click: null, correct: null, incorrect: null, start: null
+};
+
+function initAudio() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Sounds are loaded/created on first user interaction (e.g., button click)
+  } catch (e) {
+    console.warn("Web Audio API is not supported in this browser.");
+  }
+}
+
+// Simple sound generation functions
+function createSound(type, freq1, freq2, duration, vol, attack = 0.01, decay = 0.1) {
+  if (!audioCtx) return () => {}; // Return dummy function if no audio context
+
+  return () => {
+    if(!audioCtx) return; // Double check
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(freq1, audioCtx.currentTime);
+    if (freq2) {
+      oscillator.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + duration * 0.8);
+    }
+
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + attack);
+    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration + decay);
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + duration + decay + 0.1);
+  };
+}
+
+function setupSounds() {
+    if (!audioCtx) return;
+    // Click sound - short, soft pop
+    sounds.click = createSound('triangle', 600, 400, 0.05, 0.2, 0.005, 0.05);
+    // Correct sound - bright, quick
+    sounds.correct = createSound('sine', 880, 1200, 0.1, 0.3, 0.01, 0.1);
+    // Incorrect sound - lower, slightly dissonant
+    sounds.incorrect = createSound('square', 200, 150, 0.15, 0.25, 0.01, 0.15);
+    // Start game sound - short, rising tone
+    sounds.start = createSound('sawtooth', 300, 600, 0.2, 0.3, 0.02, 0.2);
+}
+
+// Function to play sound, ensuring audio context is active
+function playSound(soundName) {
+  if (!audioCtx) initAudio(); // Initialize if not already
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume().then(() => {
+        if (sounds[soundName]) sounds[soundName]();
+    });
+  } else if (sounds[soundName]) {
+    sounds[soundName]();
+  }
+}
+
+// Add a global event listener for the first user interaction to initialize audio and sounds
+function firstInteractionListener() {
+    initAudio();
+    setupSounds(); // Now create the sounds
+    window.removeEventListener('click', firstInteractionListener);
+    window.removeEventListener('touchstart', firstInteractionListener);
+}
+window.addEventListener('click', firstInteractionListener);
+window.addEventListener('touchstart', firstInteractionListener);
+
+
+/* ---------- ユーティリティ ---------- */
+const shuffle = a => {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+/* ---------- メインクラス ---------- */
+class BlastTrainer {
+  constructor() {
+    this.level = null;
+    this.timeLimit = null;
+    this.playMode = 'en-ja'; // Default
+    this.words = [];
+    this.currentWordData = null; // To store the current word object
+    this.shuffledQueue = [];
+    this.currentQueueIndex = 0;
+    this.score = 0;
+    this.attempts = 0;
+    this.timeLeft = 0;
+    this.timerIntervalId = null;
+    this.isPlaying = false;
+
+    // DOM Elements
+    this.setupScreenEl = document.getElementById('setupScreen');
+    this.gameScreenEl = document.getElementById('gameScreen');
+    this.resultScreenEl = document.getElementById('resultScreen');
+    this.startBtnEl = document.getElementById('startBtn');
+    this.titleEl = document.getElementById('title');
+    this.timerDisplayEl = document.getElementById('timerDisplay');
+    this.scoreDisplayEl = document.getElementById('scoreDisplay');
+    this.progressFillEl = document.getElementById('progressFill');
+    this.currentWordEl = document.getElementById('currentWord');
+    this.answerDisplayEl = document.getElementById('answerDisplay');
+    this.choicesEl = document.getElementById('choices');
+    this.finalScoreEl = document.getElementById('finalScore');
+    this.finalMessageEl = document.getElementById('finalMessage');
+    this.restartBtnEl = document.getElementById('restartBtn');
+    
+    this.bindEvents();
+    this.updateStartButtonState(); // Initial check for start button
+  }
+
+  bindEvents() {
+    this.titleEl.addEventListener('click', () => location.reload());
+    document.querySelectorAll('.level-btn').forEach(b => b.addEventListener('click', () => this.handleSelection(b, 'level')));
+    document.querySelectorAll('.timer-btn').forEach(b => b.addEventListener('click', () => this.handleSelection(b, 'time')));
+    document.querySelectorAll('.dir-btn').forEach(b => b.addEventListener('click', () => this.handleSelection(b, 'dir')));
+    this.startBtnEl.addEventListener('click', () => this.startGame());
+    this.restartBtnEl.addEventListener('click', () => this.restartGame());
+  }
+
+  handleSelection(buttonEl, type) {
+    playSound('click');
+    const buttonClass = type === 'level' ? 'level-btn' : type === 'time' ? 'timer-btn' : 'dir-btn';
+    document.querySelectorAll(`.${buttonClass}`).forEach(b => b.classList.remove('selected'));
+    buttonEl.classList.add('selected');
+
+    if (type === 'level') this.level = buttonEl.dataset.level;
+    if (type === 'time') this.timeLimit = parseInt(buttonEl.dataset.time, 10);
+    if (type === 'dir') this.playMode = buttonEl.dataset.mode;
+    
+    this.updateStartButtonState();
+  }
+
+  updateStartButtonState() {
+    this.startBtnEl.disabled = !(this.level && this.timeLimit !== null);
+  }
+
+  async loadWordsFromFile() {
+    try {
+      const response = await fetch(`./data/words-${this.level}.txt`); // Ensure this path is correct
+      if (!response.ok) throw new Error(`Failed to load words for level ${this.level}`);
+      const textData = await response.text();
+      this.words = textData.trim().split('\n').map(line => {
+        const [englishWord, japaneseWord] = line.split('\t');
+        return { english: englishWord?.trim(), japanese: japaneseWord?.trim() };
+      }).filter(word => word.english && word.japanese);
+
+      if (this.words.length === 0) throw new Error('No words loaded or file is empty.');
+    } catch (error) {
+      console.warn(`Error loading words: ${error.message}. Using fallback data.`);
+      // Fallback data if file loading fails
+      this.words = Array.from({ length: 20 }, (_, i) => ({
+        english: `Sample Word ${i + 1}`,
+        japanese: `サンプル単語 ${i + 1}`
+      }));
+    }
+  }
+
+  async startGame() {
+    playSound('start');
+    this.setupScreenEl.style.display = 'none';
+    this.gameScreenEl.style.display = 'block';
+    this.resultScreenEl.style.display = 'none';
+    
+    await this.loadWordsFromFile();
+    
+    this.shuffledQueue = shuffle(this.words.slice());
+    this.currentQueueIndex = 0;
+    this.score = 0;
+    this.attempts = 0;
+    this.isPlaying = true;
+    this.timeLeft = this.timeLimit;
+
+    if (this.timeLimit > 0) {
+      this.startTimer();
+    } else {
+      this.updateTimerDisplay(); // For "unlimited" time
+    }
+    this.displayNextQuestion();
+    this.updateScoreDisplay(); // Initialize score display
+  }
+
+  startTimer() {
+    this.updateTimerDisplay();
+    this.timerIntervalId = setInterval(() => {
+      this.timeLeft--;
+      this.updateTimerDisplay();
+      if (this.timeLeft <= 0) {
+        this.endGame();
+      }
+    }, 1000);
+  }
+
+  updateTimerDisplay() {
+    if (this.timeLimit === 0) {
+      this.timerDisplayEl.textContent = '時間: 無制限 ∞';
+      return;
+    }
+    const minutes = Math.floor(this.timeLeft / 60);
+    const seconds = String(this.timeLeft % 60).padStart(2, '0');
+    this.timerDisplayEl.textContent = `時間: ${minutes}:${seconds}`;
+  }
+
+  displayNextQuestion() {
+    if (!this.isPlaying) return;
+
+    if (this.currentQueueIndex >= this.shuffledQueue.length) {
+      this.shuffledQueue = shuffle(this.words.slice()); // Reshuffle if all words used
+      this.currentQueueIndex = 0;
+    }
+    this.currentWordData = this.shuffledQueue[this.currentQueueIndex++];
+    
+    const questionWord = this.playMode === 'en-ja' ? this.currentWordData.english : this.currentWordData.japanese;
+    const correctAnswer = this.playMode === 'en-ja' ? this.currentWordData.japanese : this.currentWordData.english;
+
+    this.currentWordEl.textContent = questionWord;
+    this.answerDisplayEl.style.display = 'none';
+    this.answerDisplayEl.textContent = '';
+    this.answerDisplayEl.className = 'answer-display'; // Reset class
+
+    if (this.playMode === 'en-ja') {
+      this.speakWord(this.currentWordData.english);
+    }
+
+    // Prepare choices
+    const otherWordsPool = this.words.filter(word => 
+        (this.playMode === 'en-ja' ? word.japanese : word.english) !== correctAnswer && 
+        (this.playMode === 'en-ja' ? word.english : word.japanese) !== questionWord
+    );
+    const wrongAnswers = shuffle(otherWordsPool)
+      .slice(0, 3)
+      .map(word => this.playMode === 'en-ja' ? word.japanese : word.english);
+      
+    const choicesArray = shuffle([correctAnswer, ...wrongAnswers]);
+    
+    this.choicesEl.innerHTML = ''; // Clear previous choices
+    choicesArray.forEach(choiceText => {
+      const buttonEl = document.createElement('button');
+      buttonEl.className = 'btn choice-btn';
+      buttonEl.textContent = choiceText;
+      buttonEl.addEventListener('click', () => this.handleAnswerSelection(buttonEl, choiceText, correctAnswer));
+      this.choicesEl.appendChild(buttonEl);
+    });
+    this.updateScoreDisplay();
+  }
+
+  handleAnswerSelection(buttonEl, selectedAnswer, correctAnswer) {
+    if (!this.isPlaying) return;
+
+    this.attempts++;
+    const isCorrect = selectedAnswer === correctAnswer;
+
+    // Find the English word for speaking, regardless of mode
+    let englishWordToSpeakOnClick;
+    if (this.playMode === 'en-ja') { // English shown, Japanese choice
+        // If correct, currentWordData.english. If incorrect, find English for chosen Japanese
+        englishWordToSpeakOnClick = isCorrect ? this.currentWordData.english : this.words.find(w => w.japanese === selectedAnswer)?.english;
+    } else { // Japanese shown, English choice
+        // The choice IS the English word
+        englishWordToSpeakOnClick = selectedAnswer;
+    }
+    if (englishWordToSpeakOnClick) this.speakWord(englishWordToSpeakOnClick);
+
+
+    buttonEl.classList.add(isCorrect ? 'correct' : 'incorrect');
+    
+    if (isCorrect) {
+      playSound('correct');
+      this.score++;
+      this.answerDisplayEl.textContent = `正解！ ${this.currentWordData.english} = ${this.currentWordData.japanese}`;
+      this.answerDisplayEl.classList.add('correct-text');
+      document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true); // Disable all choices
+      setTimeout(() => this.displayNextQuestion(), 1000); // Wait a bit before next question
+    } else {
+      playSound('incorrect');
+      // Find the correct English-Japanese pair for the wrongly selected answer for display
+      const selectedWordObject = this.words.find(w => (this.playMode === 'en-ja' ? w.japanese : w.english) === selectedAnswer);
+      const displaySelectedEn = selectedWordObject?.english || (this.playMode === 'ja-en' ? selectedAnswer : "???");
+      const displaySelectedJa = selectedWordObject?.japanese || (this.playMode === 'en-ja' ? selectedAnswer : "???");
+
+      this.answerDisplayEl.textContent = `残念！「${displaySelectedEn}」は「${displaySelectedJa}」だよ。正解は「${correctAnswer}」でした。`;
+      this.answerDisplayEl.classList.add('incorrect-text');
+      buttonEl.disabled = true; // Disable only the incorrect one
+      // Do not proceed immediately, let user see the correct answer among options
+      // Highlight the correct answer button after a short delay
+      setTimeout(() => {
+        document.querySelectorAll('.choice-btn').forEach(b => {
+            if (b.textContent === correctAnswer) {
+                b.classList.add('correct'); // Highlight correct one
+            }
+            b.disabled = true; // Disable all after revealing
+        });
+      }, 300);
+      setTimeout(() => this.displayNextQuestion(), 2500); // Longer delay for incorrect answers
+    }
+    this.answerDisplayEl.style.display = 'block';
+    this.updateScoreDisplay();
+  }
+  
+  speakWord(wordToSpeak) {
+    if (!('speechSynthesis' in window) || !wordToSpeak) return;
+    const utterance = new SpeechSynthesisUtterance(wordToSpeak);
+    const voices = speechSynthesis.getVoices();
+    // Prefer a native or high-quality US/GB English voice
+    let preferredVoice = voices.find(v => /en-(US|GB)/.test(v.lang) && (v.name.includes('Google') || v.localService));
+    if (!preferredVoice) preferredVoice = voices.find(v => /en-(US|GB)/.test(v.lang));
+    
+    utterance.voice = preferredVoice || voices.find(v => v.lang.startsWith('en-'));
+    utterance.lang = preferredVoice ? preferredVoice.lang : 'en-US';
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    speechSynthesis.cancel(); // Cancel any previous speech
+    speechSynthesis.speak(utterance);
+  }
+
+  updateScoreDisplay() {
+    this.scoreDisplayEl.textContent = `スコア: ${this.score}/${this.attempts}`;
+    const progressPercentage = this.attempts > 0 ? (this.score / this.attempts) * 100 : 0;
+    this.progressFillEl.style.width = `${progressPercentage}%`;
+  }
+
+  endGame() {
+    this.isPlaying = false;
+    if (this.timerIntervalId) clearInterval(this.timerIntervalId);
+    
+    this.gameScreenEl.style.display = 'none';
+    this.resultScreenEl.style.display = 'block';
+    
+    const percentage = this.attempts > 0 ? Math.round((this.score / this.attempts) * 100) : 0;
+    this.finalScoreEl.textContent = `${this.score} / ${this.attempts} (${percentage}%)`;
+    
+    let message = "お疲れ様！";
+    if (percentage >= 95) message = "素晴らしい！ほぼパーフェクト！🎉";
+    else if (percentage >= 80) message = "すごい！高得点だね！✨";
+    else if (percentage >= 60) message = "良い調子！その調子で頑張ろう！👍";
+    else if (percentage >= 40) message = "ナイスチャレンジ！続けることが大事だよ！💪";
+    else message = "たくさん練習して、もっと得意になろう！😊";
+    this.finalMessageEl.textContent = message;
+    playSound('start'); // Use start sound for game end as well
+  }
+
+  restartGame() {
+    playSound('click');
+    if (this.timerIntervalId) clearInterval(this.timerIntervalId);
+    
+    this.resultScreenEl.style.display = 'none';
+    this.setupScreenEl.style.display = 'block';
+    this.gameScreenEl.style.display = 'none'; // Hide game screen explicitly
+
+    // Reset selections and UI
+    document.querySelectorAll('.btn.selected').forEach(b => b.classList.remove('selected'));
+    // Default dir-btn
+    const defaultDirBtn = document.querySelector('.dir-btn[data-mode="en-ja"]');
+    if (defaultDirBtn) defaultDirBtn.classList.add('selected');
+    this.playMode = 'en-ja';
+
+
+    this.progressFillEl.style.width = '0%';
+    this.currentWordEl.textContent = 'Loading...';
+    this.choicesEl.innerHTML = '';
+    this.answerDisplayEl.style.display = 'none';
+    this.timerDisplayEl.textContent = '時間: --';
+    this.scoreDisplayEl.textContent = 'スコア: 0/0';
+
+    this.level = null;
+    this.timeLimit = null;
+    this.updateStartButtonState();
+  }
+}
+
+// Initialize the app once the DOM is fully loaded
+window.addEventListener('DOMContentLoaded', () => {
+  new BlastTrainer();
+   // Pre-fetch voices if available, to improve first speech synthesis
+  if ('speechSynthesis' in window && typeof speechSynthesis.getVoices === 'function') {
+    speechSynthesis.getVoices();
+  }
+});
+</script>
+</body>
+</html>
