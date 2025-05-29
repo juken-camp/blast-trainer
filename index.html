@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>BLAST TRAINER - English Learning Fun!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient-start: #f0f4f8; /* Light Grayish Blue */
+      --bg-gradient-end: #e6e9f0; /* Lighter Grayish Blue */
+      --primary-color: #6A82FB; /* Soft Blue */
+      --secondary-color: #FCB69F; /* Soft Orange/Peach */
+      --accent-color: #84E1BC; /* Mint Green */
+      --text-color: #3D4758; /* Dark Slate Gray */
+      --text-light-color: #ffffff;
+      --correct-color: #5CB85C; /* Success Green */
+      --incorrect-color: #D9534F; /* Danger Red */
+      --disabled-color: #B0BEC5; /* Light Gray */
+      --card-bg: #ffffff;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --font-family: 'Nunito', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 5px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 700px;
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: var(--primary-color);
+      margin-bottom: 25px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    h1:hover {
+      color: var(--secondary-color);
+    }
+
+    .setup-screen, .game-screen, .result-screen {
+      background-color: var(--card-bg);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px var(--shadow-color);
+      width: 100%;
+      animation: fadeIn 0.5s ease-out;
+      margin-bottom: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .setup-screen { display: block; }
+    .game-screen, .result-screen { display: none; }
+
+    .selection {
+      margin-bottom: 25px;
+    }
+    .selection:last-of-type {
+        margin-bottom: 20px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease-out;
+      color: var(--text-color);
+      padding: 10px 18px;
+      border-radius: 20px; 
+      background-color: #f0f0f0;
+      font-size: 0.95em;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    .btn.selected {
+      background-color: var(--primary-color);
+      color: var(--text-light-color);
+      box-shadow: 0 3px 10px rgba(var(--primary-color-rgb, 106, 130, 251), 0.35);
+      transform: scale(1.03);
+    }
+    :root { --primary-color-rgb: 106, 130, 251; }
+
+    .start-btn, .restart-btn {
+      padding: 14px 30px;
+      font-size: 1.1em;
+      border-radius: 25px;
+      color: var(--text-light-color);
+      font-weight: 700;
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+
+    .start-btn {
+      background-color: var(--accent-color);
+      display: block;
+      margin: 0 auto;
+    }
+    .start-btn:hover {
+      background-color: #68c9a9; 
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 5px 18px rgba(132, 225, 188, 0.45);
+    }
+    .start-btn:disabled {
+      background-color: var(--disabled-color);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      color: #777;
+    }
+
+    .restart-btn {
+      background-color: var(--secondary-color);
+    }
+    .restart-btn:hover {
+      background-color: #fa9f85;
+        transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 5px 18px rgba(252, 182, 159, 0.45);
+    }
+   
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+      width: 0%;
+      transition: width 0.3s ease-in-out;
+      border-radius: 5px;
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 1em;
+      font-weight: 600;
+    }
+    .timer { color: var(--primary-color); }
+    .score { color: var(--secondary-color); }
+
+    .word-display {
+      background-color: #f8f9fa;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #eee;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .word {
+      font-size: 2.2em;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 10px;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .choice-btn {
+      padding: 15px;
+      font-size: 1em;
+      border: 1px solid #ddd;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-weight: 600;
+      border-radius: 10px; 
+    }
+    .choice-btn:hover:not(:disabled) {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+    .choice-btn.correct {
+      background-color: var(--correct-color);
+      border-color: var(--correct-color);
+      color: var(--text-light-color);
+      animation: pulse 0.5s;
+    }
+    .choice-btn.incorrect {
+      background-color: var(--incorrect-color);
+      border-color: var(--incorrect-color);
+      color: var(--text-light-color);
+    }
+      .choice-btn.marked-incorrect {
+        background-color: var(--incorrect-color);
+        border-color: var(--incorrect-color);
+        color: var(--text-light-color);
+    }
+    .choice-btn.marked-incorrect:hover,
+    .choice-btn.marked-incorrect:focus {
+      color: var(--text-light-color);
+      border-color: var(--incorrect-color);
+    }
+    .choice-btn.wiggle {
+        animation: shake 0.4s;
+    }
+
+    .choice-btn:disabled:not(.correct):not(.marked-incorrect) { 
+      background-color: #f5f5f5;
+      color: var(--disabled-color);
+      cursor: not-allowed;
+    }
+    .choice-btn:focus {
+      outline: none; 
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
+    }
+
+    .answer-display {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: rgba(0,0,0,0.03);
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-weight: 600;
+      color: var(--text-color);
+      min-height: 4em;
+      line-height: 1.4;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+      width: 100%;
+    }
+    .answer-display.visible {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity 0.3s ease, visibility 0s linear 0s;
+    }
+    .answer-display.correct-text { color: var(--correct-color); }
+    .answer-display.incorrect-text { color: var(--incorrect-color); }
+
+    .result-screen h2 {
+      font-size: 1.8em;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+    }
+    .final-score {
+      font-size: 2.5em;
+      color: var(--secondary-color);
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+    #finalMessage {
+      font-size: 1.1em;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    /* **音声設定関連のスタイル** */
+    .voice-settings-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      color: var(--text-light-color);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      font-size: 1.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .voice-settings-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .voice-settings-btn.muted {
+      background: linear-gradient(135deg, var(--disabled-color), #90A4AE);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .voice-modal {
+      background-color: var(--card-bg);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .modal-title {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: var(--text-color);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.1);
+    }
+
+    .voice-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .toggle-label {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 60px;
+      height: 30px;
+      background-color: var(--disabled-color);
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .toggle-switch.active {
+      background-color: var(--accent-color);
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch.active .toggle-slider {
+      transform: translateX(30px);
+    }
+
+    .voice-section {
+      margin-bottom: 20px;
+    }
+
+    .voice-section-title {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .voice-section-title::before {
+      content: "";
+      width: 4px;
+      height: 20px;
+      border-radius: 2px;
+    }
+
+    .voice-section.female .voice-section-title::before {
+      background-color: #E91E63;
+    }
+
+    .voice-section.male .voice-section-title::before {
+      background-color: #2196F3;
+    }
+
+    .voice-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+
+    .voice-option:hover {
+      background-color: #e9ecef;
+      transform: translateY(-1px);
+    }
+
+    .voice-option.selected {
+      background-color: var(--primary-color);
+      color: var(--text-light-color);
+      border-color: var(--primary-color);
+    }
+
+    .voice-info {
+      flex: 1;
+    }
+
+    .voice-name {
+      font-weight: 600;
+      margin-bottom: 1px;
+      font-size: 0.95em;
+    }
+
+    .voice-description {
+      font-size: 0.8em;
+      opacity: 0.8;
+    }
+
+    .voice-option.selected .voice-description {
+      opacity: 0.9;
+    }
+
+    .voice-controls {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .preview-btn {
+      padding: 4px 10px;
+      background-color: var(--accent-color);
+      color: var(--text-light-color);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.8em;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .preview-btn:hover {
+      background-color: #68c9a9;
+      transform: scale(1.05);
+    }
+
+    .voice-option.selected .preview-btn {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .voice-option.selected .preview-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .radio-wrapper {
+      display: flex;
+      align-items: center;
+      margin-left: 8px;
+    }
+
+    .custom-radio {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--disabled-color);
+      border-radius: 50%;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .voice-option.selected .custom-radio {
+      border-color: var(--text-light-color);
+      background-color: var(--text-light-color);
+    }
+
+    .custom-radio::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.2s ease;
+    }
+
+    .voice-option.selected .custom-radio::after {
+      transform: translate(-50%, -50%) scale(1);
+      background-color: var(--primary-color);
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 10px 0px; }
+      .container { padding: 5px; }
+      h1 { font-size: 2em; margin-bottom:20px; }
+      .word { font-size: 1.8em; }
+      .choices { grid-template-columns: 1fr; gap: 8px;}
+     
+      .setup-screen, .game-screen, .result-screen { padding: 15px; }
+
+      .selection:nth-child(1) .buttons,
+      .selection:nth-child(2) .buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 8px;
+      }
+        .selection:nth-child(3) .buttons {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .btn { padding: 10px 12px; font-size: 0.9em; }
+      .start-btn, .restart-btn { padding: 12px 25px; font-size: 1em; }
+      .choice-btn { padding: 12px; font-size: 0.95em;}
+
+      .answer-display { 
+        font-size: 0.9em; 
+        min-height: 4.2em;
+      }
+
+      .voice-settings-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2em;
+      }
+
+      .voice-modal {
+        padding: 20px;
+        width: 95%;
+      }
+
+      .voice-option {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px;
+      }
+
+      .voice-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <h1 id="title">BLAST TRAINER</h1>
+
+  <div class="setup-screen" id="setupScreen">
+    <div class="selection">
+      <div class="buttons">
+        <button class="btn level-btn" data-level="5">英検5級</button>
+        <button class="btn level-btn" data-level="4">4級</button>
+        <button class="btn level-btn" data-level="3">3級</button>
+        <button class="btn level-btn" data-level="p2">準2級</button>
+        <button class="btn level-btn" data-level="2">2級</button>
+        <button class="btn level-btn" data-level="p1">準1級</button>
+        <button class="btn level-btn" data-level="1">1級</button>
+      </div>
+    </div>
+
+    <div class="selection">
+      <div class="buttons">
+        <button class="btn timer-btn" data-time="60">1分</button>
+        <button class="btn timer-btn" data-time="180">3分</button>
+        <button class="btn timer-btn" data-time="300">5分</button>
+        <button class="btn timer-btn" data-time="600">10分</button>
+        <button class="btn timer-btn" data-time="0">無制限</button>
+      </div>
+    </div>
+
+    <div class="selection">
+      <div class="buttons">
+        <button class="btn dir-btn selected" data-mode="en-ja">英語 ▶ 日本語</button>
+        <button class="btn dir-btn" data-mode="ja-en">日本語 ▶ 英語</button>
+      </div>
+    </div>
+
+    <button class="start-btn" id="startBtn" disabled>スタート！</button>
+  </div>
+
+  <div class="game-screen" id="gameScreen">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="game-info">
+      <div class="timer" id="timerDisplay">時間: --</div>
+      <div class="score" id="scoreDisplay">スコア: 0/0</div>
+    </div>
+
+    <div class="word-display">
+      <div class="word" id="currentWord">Loading...</div>
+      <div class="answer-display" id="answerDisplay"></div>
+    </div>
+
+    <div class="choices" id="choices"></div>
+  </div>
+
+  <div class="result-screen" id="resultScreen">
+    <h2>ゲーム終了！</h2>
+    <div class="final-score" id="finalScore">0/0</div>
+    <div id="finalMessage">お疲れ様でした！</div>
+    <button class="restart-btn" id="restartBtn">もう一度挑戦！</button>
+  </div>
+</div>
+
+<!-- **音声設定ボタン** -->
+<button class="voice-settings-btn" id="voiceSettingsBtn" title="音声設定">
+  🔊
+</button>
+
+<!-- **音声設定モーダル** -->
+<div class="modal-overlay" id="voiceModal">
+  <div class="voice-modal">
+    <div class="modal-header">
+      <h3 class="modal-title">音声設定</h3>
+      <button class="close-btn" id="closeModal">&times;</button>
+    </div>
+
+    <div class="voice-toggle">
+      <span class="toggle-label">音声再生</span>
+      <div class="toggle-switch active" id="voiceToggle">
+        <div class="toggle-slider"></div>
+      </div>
+    </div>
+
+    <div class="voice-section female">
+      <h4 class="voice-section-title">👩 女性音声</h4>
+      
+      <div class="voice-option" data-voice="female-1">
+        <div class="voice-info">
+          <div class="voice-name">Female Voice 1</div>
+          <div class="voice-description">自然で聞き取りやすい</div>
+        </div>
+        <div class="voice-controls">
+          <button class="preview-btn" data-preview="female-1">プレビュー</button>
+          <div class="radio-wrapper">
+            <div class="custom-radio"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-option" data-voice="female-2">
+        <div class="voice-info">
+          <div class="voice-name">Female Voice 2</div>
+          <div class="voice-description">クリアで発音が正確</div>
+        </div>
+        <div class="voice-controls">
+          <button class="preview-btn" data-preview="female-2">プレビュー</button>
+          <div class="radio-wrapper">
+            <div class="custom-radio"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-option" data-voice="female-3">
+        <div class="voice-info">
+          <div class="voice-name">Female Voice 3</div>
+          <div class="voice-description">親しみやすい声</div>
+        </div>
+        <div class="voice-controls">
+          <button class="preview-btn" data-preview="female-3">プレビュー</button>
+          <div class="radio-wrapper">
+            <div class="custom-radio"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="voice-section male">
+      <h4 class="voice-section-title">👨 男性音声</h4>
+      
+      <div class="voice-option selected" data-voice="male-1">
+        <div class="voice-info">
+          <div class="voice-name">Male Voice 1</div>
+          <div class="voice-description">標準的で聞き取りやすい</div>
+        </div>
+        <div class="voice-controls">
+          <button class="preview-btn" data-preview="male-1">プレビュー</button>
+          <div class="radio-wrapper">
+            <div class="custom-radio"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-option" data-voice="male-2">
+        <div class="voice-info">
+          <div class="voice-name">Male Voice 2</div>
+          <div class="voice-description">はっきりした発音</div>
+        </div>
+        <div class="voice-controls">
+          <button class="preview-btn" data-preview="male-2">プレビュー</button>
+          <div class="radio-wrapper">
+            <div class="custom-radio"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-option" data-voice="male-3">
+        <div class="voice-info">
+          <div class="voice-name">Male Voice 3</div>
+          <div class="voice-description">落ち着いた声</div>
+        </div>
+        <div class="voice-controls">
+          <button class="preview-btn" data-preview="male-3">プレビュー</button>
+          <div class="radio-wrapper">
+            <div class="custom-radio"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Audio Context & Sound Effects ---------- */
+let audioCtx;
+const sounds = {
+  click: null, correct: null, incorrect: null, start: null
+};
+
+function initAudio() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx) {
+      setupSounds();
+    }
+  } catch (e) {
+    // console.warn("Web Audio API is not supported in this browser.", e);
+  }
+}
+
+function createSound(type, freq1, freq2, duration, vol, attack = 0.01, decay = 0.1) {
+  if (!audioCtx) {
+    return () => {};
+  }
+
+  return () => {
+    if(!audioCtx) return;
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+            // console.log("AudioContext resumed in createSound's playback thunk");
+        });
+    }
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(freq1, audioCtx.currentTime);
+    if (freq2) {
+      oscillator.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + duration * 0.8);
+    }
+
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + attack);
+    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration + decay);
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + duration + decay + 0.1);
+  };
+}
+
+function setupSounds() {
+  if (!audioCtx) {
+    return;
+  }
+  sounds.click = createSound('triangle', 700, 500, 0.03, 0.15, 0.005, 0.03);
+  sounds.correct = createSound('sine', 900, 1300, 0.08, 0.25, 0.01, 0.08);
+  sounds.incorrect = createSound('square', 220, 180, 0.12, 0.20, 0.01, 0.12);
+  sounds.start = createSound('sawtooth', 330, 660, 0.18, 0.28, 0.02, 0.18);
+}
+
+function playSound(soundName) {
+  if (!audioCtx) {
+    initAudio();
+  }
+
+  if (!audioCtx || !sounds[soundName]) {
+    return;
+  }
+
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().then(() => {
+      if (sounds[soundName]) {
+        sounds[soundName]();
+      }
+    }).catch(err => {
+      // console.error("Error resuming AudioContext:", err);
+    });
+  } else if (audioCtx.state === 'running') {
+    sounds[soundName]();
+  }
+}
+
+function firstInteractionListener() {
+  initAudio();
+  window.removeEventListener('click', firstInteractionListener, {capture: true});
+  window.removeEventListener('touchstart', firstInteractionListener, {capture: true});
+}
+window.addEventListener('click', firstInteractionListener, {capture: true, once: true});
+window.addEventListener('touchstart', firstInteractionListener, {capture: true, once: true});
+
+/* ---------- **重複回避機能付き音声管理クラス** ---------- */
+class VoiceManager {
+  constructor() {
+    this.isEnabled = true;
+    this.selectedVoice = 'male-1';
+    this.voices = {};
+    this.availableVoices = [];
+    
+    this.loadSettings();
+    this.initializeVoices();
+    this.setupEventListeners();
+  }
+
+  loadSettings() {
+    const savedSettings = localStorage.getItem('voiceSettings');
+    if (savedSettings) {
+      try {
+        const settings = JSON.parse(savedSettings);
+        this.isEnabled = settings.isEnabled !== false;
+        this.selectedVoice = settings.selectedVoice || 'male-1';
+      } catch (e) {
+        console.warn('Failed to load voice settings');
+      }
+    }
+    this.updateUI();
+  }
+
+  saveSettings() {
+    const settings = {
+      isEnabled: this.isEnabled,
+      selectedVoice: this.selectedVoice
+    };
+    localStorage.setItem('voiceSettings', JSON.stringify(settings));
+  }
+
+  categorizeVoiceByGender(voice) {
+    const name = voice.name.toLowerCase();
+    
+    // 確実な女性音声パターン
+    const definiteFemalePatterns = [
+      'female', 'woman', 'girl', 'lady', 'zira', 'cortana', 'hazel', 'karen', 
+      'sara', 'samantha', 'susan', 'victoria', 'catherine', 'helen', 'maria', 
+      'lisa', 'nancy', 'betty', 'sandra', 'donna', 'carol', 'ruth', 'sharon',
+      'michelle', 'laura', 'sarah', 'kimberly', 'deborah', 'dorothy', 'amy', 
+      'angela', 'ashley', 'brenda', 'emma', 'olivia', 'cynthia', 'marie', 
+      'janet', 'frances', 'anna', 'alice', 'jean', 'judy', 'andrea', 'kathryn',
+      'paulina', 'monica', 'joanna', 'kendra', 'ivy', 'salli', 'raveena'
+    ];
+    
+    // 確実な男性音声パターン  
+    const definiteMalePatterns = [
+      'male', 'man', 'boy', 'guy', 'david', 'mark', 'alex', 'daniel', 'tom', 
+      'fred', 'james', 'john', 'michael', 'robert', 'william', 'richard', 
+      'charles', 'thomas', 'christopher', 'matthew', 'anthony', 'donald', 
+      'steven', 'paul', 'andrew', 'joshua', 'kenneth', 'kevin', 'brian', 
+      'george', 'edward', 'ronald', 'timothy', 'jason', 'jeffrey', 'ryan', 
+      'jacob', 'gary', 'nicholas', 'eric', 'jonathan', 'stephen', 'larry', 
+      'justin', 'scott', 'brandon', 'benjamin', 'samuel', 'gregory', 
+      'alexander', 'patrick', 'frank', 'raymond', 'jack', 'dennis', 'jerry',
+      'joey', 'matthew', 'geraint', 'russ', 'ricardo', 'giorgio'
+    ];
+
+    // 確実な女性音声の検索
+    for (const pattern of definiteFemalePatterns) {
+      if (name.includes(pattern)) {
+        return 'female';
+      }
+    }
+
+    // 確実な男性音声の検索
+    for (const pattern of definiteMalePatterns) {
+      if (name.includes(pattern)) {
+        return 'male';
+      }
+    }
+
+    // Microsoft音声の特別処理
+    if (name.includes('microsoft')) {
+      if (name.includes('zira') || name.includes('hazel')) return 'female';
+      if (name.includes('david') || name.includes('mark')) return 'male';
+    }
+
+    // Google音声の番号による推測（一般的なパターン）
+    if (name.includes('google')) {
+      // 音声名に含まれる数字で判別
+      const numbers = name.match(/\d+/g);
+      if (numbers) {
+        const num = parseInt(numbers[0]);
+        // 偶数は女性、奇数は男性とする仮定
+        return num % 2 === 0 ? 'female' : 'male';
+      }
+    }
+
+    return 'unknown';
+  }
+
+  initializeVoices() {
+    if (!('speechSynthesis' in window)) {
+      console.warn('Speech synthesis not supported');
+      return;
+    }
+    
+    const loadVoices = () => {
+      this.availableVoices = speechSynthesis.getVoices();
+      
+      if (this.availableVoices.length === 0) {
+        setTimeout(loadVoices, 1000);
+        return;
+      }
+
+      // 英語音声のみをフィルタリング
+      const englishVoices = this.availableVoices.filter(voice => 
+        voice.lang.startsWith('en-') || voice.lang.startsWith('en_')
+      );
+
+      if (englishVoices.length === 0) {
+        this.assignVoicesWithoutDuplication(this.availableVoices);
+      } else {
+        this.assignVoicesWithoutDuplication(englishVoices);
+      }
+
+      this.updateVoiceDisplay();
+    };
+
+    if (speechSynthesis.getVoices().length === 0) {
+      speechSynthesis.addEventListener('voiceschanged', loadVoices);
+      setTimeout(loadVoices, 500);
+      setTimeout(loadVoices, 1500);
+      setTimeout(loadVoices, 3000);
+    } else {
+      loadVoices();
+    }
+  }
+
+  assignVoicesWithoutDuplication(voiceList) {
+    const femaleVoices = [];
+    const maleVoices = [];
+    const unknownVoices = [];
+    const usedVoices = new Set(); // 重複チェック用
+
+    // 音声を性別に分類（重複チェック付き）
+    voiceList.forEach(voice => {
+      // 既に使用済みの音声はスキップ
+      if (usedVoices.has(voice.name)) {
+        return;
+      }
+
+      const gender = this.categorizeVoiceByGender(voice);
+      if (gender === 'female') {
+        femaleVoices.push(voice);
+        usedVoices.add(voice.name);
+      } else if (gender === 'male') {
+        maleVoices.push(voice);
+        usedVoices.add(voice.name);
+      } else {
+        unknownVoices.push(voice);
+      }
+    });
+
+    // 不足している音声を不明カテゴリから補完（重複なしで）
+    let unknownIndex = 0;
+    while ((femaleVoices.length < 3 || maleVoices.length < 3) && unknownIndex < unknownVoices.length) {
+      const voice = unknownVoices[unknownIndex];
+      
+      // 既に使用済みでないかチェック
+      if (!usedVoices.has(voice.name)) {
+        if (femaleVoices.length < 3) {
+          femaleVoices.push(voice);
+          usedVoices.add(voice.name);
+        } else if (maleVoices.length < 3) {
+          maleVoices.push(voice);
+          usedVoices.add(voice.name);
+        }
+      }
+      unknownIndex++;
+    }
+
+    // 最終的な音声割り当て（重複なし保証）
+    this.voices = {
+      'female-1': this.getUniqueVoice(femaleVoices, 0, voiceList),
+      'female-2': this.getUniqueVoice(femaleVoices, 1, voiceList, [femaleVoices[0]]),
+      'female-3': this.getUniqueVoice(femaleVoices, 2, voiceList, [femaleVoices[0], femaleVoices[1]]),
+      'male-1': this.getUniqueVoice(maleVoices, 0, voiceList, [...femaleVoices]),
+      'male-2': this.getUniqueVoice(maleVoices, 1, voiceList, [...femaleVoices, maleVoices[0]]),
+      'male-3': this.getUniqueVoice(maleVoices, 2, voiceList, [...femaleVoices, maleVoices[0], maleVoices[1]])
+    };
+
+    console.log('Final voice assignment (no duplicates):');
+    Object.keys(this.voices).forEach(key => {
+      const voice = this.voices[key];
+      console.log(`${key}: ${voice ? voice.name : 'None'} (${voice ? voice.lang : 'N/A'})`);
+    });
+  }
+
+  getUniqueVoice(preferredArray, index, fallbackArray, excludeVoices = []) {
+    // 希望するインデックスの音声を取得
+    if (preferredArray[index] && !this.isVoiceInExcludeList(preferredArray[index], excludeVoices)) {
+      return preferredArray[index];
+    }
+
+    // 他の音声で重複していないものを探す
+    for (const voice of preferredArray) {
+      if (!this.isVoiceInExcludeList(voice, excludeVoices)) {
+        return voice;
+      }
+    }
+
+    // フォールバック：全体から重複していないものを探す
+    for (const voice of fallbackArray) {
+      if (!this.isVoiceInExcludeList(voice, excludeVoices)) {
+        return voice;
+      }
+    }
+
+    // 最後の手段：最初の音声を返す
+    return fallbackArray[0] || null;
+  }
+
+  isVoiceInExcludeList(voice, excludeList) {
+    if (!voice) return false;
+    return excludeList.some(excludeVoice => 
+      excludeVoice && excludeVoice.name === voice.name
+    );
+  }
+
+  updateVoiceDisplay() {
+    Object.keys(this.voices).forEach(key => {
+      const voiceOption = document.querySelector(`[data-voice="${key}"]`);
+      if (voiceOption && this.voices[key]) {
+        const nameEl = voiceOption.querySelector('.voice-name');
+        
+        if (nameEl) {
+          nameEl.textContent = this.voices[key].name || 'Unknown Voice';
+        }
+      }
+    });
+  }
+
+  setupEventListeners() {
+    const voiceSettingsBtn = document.getElementById('voiceSettingsBtn');
+    const voiceModal = document.getElementById('voiceModal');
+    const closeModal = document.getElementById('closeModal');
+    const voiceToggle = document.getElementById('voiceToggle');
+
+    voiceSettingsBtn.addEventListener('click', () => {
+      playSound('click');
+      this.showModal();
+    });
+
+    closeModal.addEventListener('click', () => {
+      playSound('click');
+      this.hideModal();
+    });
+
+    voiceModal.addEventListener('click', (e) => {
+      if (e.target === voiceModal) {
+        this.hideModal();
+      }
+    });
+
+    voiceToggle.addEventListener('click', () => {
+      playSound('click');
+      this.toggleVoice();
+    });
+
+    document.querySelectorAll('.voice-option').forEach(option => {
+      option.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('preview-btn')) {
+          playSound('click');
+          this.selectVoice(option.dataset.voice);
+        }
+      });
+    });
+
+    document.querySelectorAll('.preview-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playSound('click');
+        this.previewVoice(btn.dataset.preview);
+      });
+    });
+  }
+
+  showModal() {
+    document.getElementById('voiceModal').classList.add('show');
+  }
+
+  hideModal() {
+    document.getElementById('voiceModal').classList.remove('show');
+  }
+
+  toggleVoice() {
+    this.isEnabled = !this.isEnabled;
+    this.updateUI();
+    this.saveSettings();
+  }
+
+  selectVoice(voiceKey) {
+    this.selectedVoice = voiceKey;
+    this.updateVoiceSelection();
+    this.saveSettings();
+  }
+
+  updateVoiceSelection() {
+    document.querySelectorAll('.voice-option').forEach(option => {
+      option.classList.remove('selected');
+      if (option.dataset.voice === this.selectedVoice) {
+        option.classList.add('selected');
+      }
+    });
+  }
+
+  updateUI() {
+    const settingsBtn = document.getElementById('voiceSettingsBtn');
+    const toggle = document.getElementById('voiceToggle');
+    
+    if (this.isEnabled) {
+      settingsBtn.textContent = '🔊';
+      settingsBtn.classList.remove('muted');
+      toggle.classList.add('active');
+    } else {
+      settingsBtn.textContent = '🔇';
+      settingsBtn.classList.add('muted');
+      toggle.classList.remove('active');
+    }
+    
+    this.updateVoiceSelection();
+  }
+
+  previewVoice(voiceKey) {
+    if (!this.isEnabled || !('speechSynthesis' in window)) return;
+    
+    speechSynthesis.cancel();
+    
+    const voice = this.voices[voiceKey];
+    const utterance = new SpeechSynthesisUtterance('Hello! This is a preview of this voice.');
+    
+    if (voice) {
+      utterance.voice = voice;
+      utterance.lang = voice.lang;
+    } else {
+      utterance.lang = 'en-US';
+    }
+    
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    
+    speechSynthesis.speak(utterance);
+  }
+
+  speak(text) {
+    if (!this.isEnabled || !('speechSynthesis' in window) || !text) return;
+    
+    speechSynthesis.cancel();
+    
+    const voice = this.voices[this.selectedVoice];
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    if (voice) {
+      utterance.voice = voice;
+      utterance.lang = voice.lang;
+    } else {
+      utterance.lang = 'en-US';
+    }
+    
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    
+    speechSynthesis.speak(utterance);
+  }
+}
+
+/* ---------- ユーティリティ ---------- */
+const shuffle = a => {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+/* ---------- メインクラス ---------- */
+class BlastTrainer {
+  constructor() {
+    this.level = null;
+    this.timeLimit = null;
+    this.playMode = 'en-ja'; 
+    this.words = [];
+    this.currentWordData = null; 
+    this.shuffledQueue = [];
+    this.currentQueueIndex = 0;
+    this.score = 0;
+    this.attempts = 0;
+    this.currentQuestionAnsweredCorrectlyOnFirstTry = false;
+    this.timeLeft = 0;
+    this.timerIntervalId = null;
+    this.isPlaying = false;
+
+    this.setupScreenEl = document.getElementById('setupScreen');
+    this.gameScreenEl = document.getElementById('gameScreen');
+    this.resultScreenEl = document.getElementById('resultScreen');
+    this.startBtnEl = document.getElementById('startBtn');
+    this.titleEl = document.getElementById('title');
+    this.timerDisplayEl = document.getElementById('timerDisplay');
+    this.scoreDisplayEl = document.getElementById('scoreDisplay');
+    this.progressFillEl = document.getElementById('progressFill');
+    this.currentWordEl = document.getElementById('currentWord');
+    this.answerDisplayEl = document.getElementById('answerDisplay');
+    this.choicesEl = document.getElementById('choices');
+    this.finalScoreEl = document.getElementById('finalScore');
+    this.finalMessageEl = document.getElementById('finalMessage');
+    this.restartBtnEl = document.getElementById('restartBtn');
+   
+    this.bindEvents();
+    this.updateStartButtonState(); 
+  }
+
+  bindEvents() {
+    this.titleEl.addEventListener('click', () => { playSound('click'); location.reload(); });
+   
+    document.querySelectorAll('.level-btn').forEach(b => b.addEventListener('click', () => this.handleSelection(b, 'level')));
+    document.querySelectorAll('.timer-btn').forEach(b => b.addEventListener('click', () => this.handleSelection(b, 'time')));
+    document.querySelectorAll('.dir-btn').forEach(b => b.addEventListener('click', () => this.handleSelection(b, 'dir')));
+   
+    this.startBtnEl.addEventListener('click', () => {
+      if (!this.startBtnEl.disabled) {
+        playSound('click');
+        this.startGame();
+      }
+    });
+    this.restartBtnEl.addEventListener('click', () => this.restartGame());
+  }
+
+  handleSelection(buttonEl, type) {
+    playSound('click');
+    const buttonClass = type === 'level' ? 'level-btn' : type === 'time' ? 'timer-btn' : 'dir-btn';
+    document.querySelectorAll(`.${buttonClass}`).forEach(b => b.classList.remove('selected'));
+    buttonEl.classList.add('selected');
+
+    if (type === 'level') this.level = buttonEl.dataset.level;
+    if (type === 'time') this.timeLimit = parseInt(buttonEl.dataset.time, 10);
+    if (type === 'dir') this.playMode = buttonEl.dataset.mode;
+   
+    this.updateStartButtonState();
+  }
+
+  updateStartButtonState() {
+    this.startBtnEl.disabled = !(this.level && this.timeLimit !== null);
+  }
+
+  async loadWordsFromFile() {
+    try {
+      const response = await fetch(`./data/words-${this.level}.txt`); 
+      if (!response.ok) throw new Error(`Failed to load words for level ${this.level}`);
+      const textData = await response.text();
+      this.words = textData.trim().split('\n').map(line => {
+        const [englishWord, japaneseWord] = line.split('\t');
+        return { english: englishWord?.trim(), japanese: japaneseWord?.trim() };
+      }).filter(word => word.english && word.japanese);
+
+      if (this.words.length === 0) throw new Error('No words loaded or file is empty.');
+    } catch (error) {
+      this.words = Array.from({ length: 20 }, (_, i) => ({
+        english: `Sample Word ${i + 1}`,
+        japanese: `サンプル単語 ${i + 1}`
+      }));
+    }
+  }
+
+  async startGame() {
+    playSound('start'); 
+    this.setupScreenEl.style.display = 'none';
+    this.gameScreenEl.style.display = 'block';
+    this.resultScreenEl.style.display = 'none';
+   
+    await this.loadWordsFromFile();
+   
+    this.shuffledQueue = shuffle(this.words.slice());
+    this.currentQueueIndex = 0;
+    this.score = 0;
+    this.attempts = 0; 
+    this.isPlaying = true;
+    this.timeLeft = this.timeLimit;
+
+    if (this.timeLimit > 0) {
+      this.startTimer();
+    } else {
+      this.updateTimerDisplay(); 
+    }
+    this.displayNextQuestion();
+    this.updateScoreDisplay(); 
+  }
+
+  startTimer() {
+    this.updateTimerDisplay();
+    this.timerIntervalId = setInterval(() => {
+      this.timeLeft--;
+      this.updateTimerDisplay();
+      if (this.timeLeft <= 0) {
+        this.endGame();
+      }
+    }, 1000);
+  }
+
+  updateTimerDisplay() {
+    if (this.timeLimit === 0) {
+      this.timerDisplayEl.textContent = '時間: 無制限 ∞';
+      return;
+    }
+    const minutes = Math.floor(this.timeLeft / 60);
+    const seconds = String(this.timeLeft % 60).padStart(2, '0');
+    this.timerDisplayEl.textContent = `時間: ${minutes}:${seconds}`;
+  }
+
+  displayNextQuestion() {
+    if (!this.isPlaying) return;
+    this.currentQuestionAnsweredCorrectlyOnFirstTry = false;
+
+    if (this.currentQueueIndex >= this.shuffledQueue.length) {
+      this.shuffledQueue = shuffle(this.words.slice()); 
+      this.currentQueueIndex = 0;
+    }
+    this.currentWordData = this.shuffledQueue[this.currentQueueIndex++];
+   
+    const questionWord = this.playMode === 'en-ja' ? this.currentWordData.english : this.currentWordData.japanese;
+    const correctAnswer = this.playMode === 'en-ja' ? this.currentWordData.japanese : this.currentWordData.english;
+
+    this.currentWordEl.textContent = questionWord;
+   
+    this.answerDisplayEl.textContent = '';
+    this.answerDisplayEl.className = 'answer-display';
+   
+    if (this.playMode === 'en-ja' && questionWord) { 
+      window.voiceManager.speak(questionWord);
+    }
+
+    const otherWordsPool = this.words.filter(word => 
+        (this.playMode === 'en-ja' ? word.japanese : word.english) !== correctAnswer && 
+        (this.playMode === 'en-ja' ? word.english : word.japanese) !== questionWord
+    );
+    const wrongAnswers = shuffle(otherWordsPool)
+      .slice(0, 3)
+      .map(word => this.playMode === 'en-ja' ? word.japanese : word.english);
+     
+    const choicesArray = shuffle([correctAnswer, ...wrongAnswers]);
+   
+    this.choicesEl.innerHTML = ''; 
+    choicesArray.forEach(choiceText => {
+      const buttonEl = document.createElement('button');
+      buttonEl.className = 'btn choice-btn';
+      buttonEl.textContent = choiceText;
+      buttonEl.addEventListener('click', () => this.handleAnswerSelection(
+          buttonEl, 
+          choiceText, 
+          correctAnswer, 
+          this.currentWordData.english, 
+          this.currentWordData.japanese
+      ));
+      this.choicesEl.appendChild(buttonEl);
+    });
+    this.updateScoreDisplay(); 
+
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
+  }
+
+  handleAnswerSelection(buttonEl, selectedAnswer, correctAnswer, currentQuestionEnglish, currentQuestionJapanese) {
+    if (!this.isPlaying) return;
+   
+    let isFirstClickForThisQuestion = true;
+    const choiceButtons = this.choicesEl.querySelectorAll('.choice-btn');
+    for(const btn of choiceButtons) {
+        if(btn.classList.contains('marked-incorrect') || btn.classList.contains('correct')){
+            isFirstClickForThisQuestion = false;
+            break;
+        }
+    }
+
+    let selectedWordObject;
+    if (this.playMode === 'en-ja') { 
+        selectedWordObject = this.words.find(w => w.japanese === selectedAnswer);
+    } else { 
+        selectedWordObject = this.words.find(w => w.english === selectedAnswer);
+    }
+    const selectedDisplayEnglish = selectedWordObject?.english || (this.playMode === 'ja-en' ? selectedAnswer : "???");
+    const selectedDisplayJapanese = selectedWordObject?.japanese || (this.playMode === 'en-ja' ? selectedAnswer : "???");
+
+    if (selectedDisplayEnglish && selectedDisplayEnglish !== "???") { 
+        window.voiceManager.speak(selectedDisplayEnglish);
+    }
+
+    const isCorrect = selectedAnswer === correctAnswer;
+
+    this.answerDisplayEl.classList.remove('correct-text', 'incorrect-text', 'visible');
+    void this.answerDisplayEl.offsetWidth; 
+
+    if (isCorrect) {
+      playSound('correct');
+      if (isFirstClickForThisQuestion && !this.currentQuestionAnsweredCorrectlyOnFirstTry) {
+        this.score++;
+        this.currentQuestionAnsweredCorrectlyOnFirstTry = true;
+      }
+     
+      buttonEl.classList.remove('marked-incorrect', 'wiggle'); 
+      buttonEl.classList.add('correct');
+     
+      this.answerDisplayEl.textContent = `正解！ 「${currentQuestionEnglish}」は「${currentQuestionJapanese}」だね！`;
+      this.answerDisplayEl.classList.add('correct-text');
+     
+      document.querySelectorAll('.choice-btn').forEach(b => {
+          b.disabled = true; 
+          if (b !== buttonEl && b.textContent !== correctAnswer) { 
+              b.style.opacity = "0.5"; 
+          }
+      });
+      setTimeout(() => this.displayNextQuestion(), 1200); 
+    } else {
+      playSound('incorrect');
+      buttonEl.classList.add('marked-incorrect'); 
+      buttonEl.classList.add('wiggle');
+      setTimeout(()=> buttonEl.classList.remove('wiggle'), 400);
+
+      this.answerDisplayEl.textContent = `「${selectedDisplayEnglish}」は「${selectedDisplayJapanese}」だよ。`;
+      this.answerDisplayEl.classList.add('incorrect-text');
+    }
+   
+    if (isFirstClickForThisQuestion) {
+        this.attempts++;
+    }
+
+    this.answerDisplayEl.classList.add('visible');
+    this.updateScoreDisplay();
+  }
+
+  updateScoreDisplay() {
+    this.scoreDisplayEl.textContent = `スコア: ${this.score}/${this.attempts}`;
+    const progressPercentage = this.attempts > 0 ? (this.score / this.attempts) * 100 : 0;
+    this.progressFillEl.style.width = `${progressPercentage}%`;
+  }
+
+  endGame() {
+    this.isPlaying = false;
+    if (this.timerIntervalId) clearInterval(this.timerIntervalId);
+   
+    this.gameScreenEl.style.display = 'none';
+    this.resultScreenEl.style.display = 'block';
+   
+    const percentage = this.attempts > 0 ? Math.round((this.score / this.attempts) * 100) : 0;
+    this.finalScoreEl.textContent = `${this.score} / ${this.attempts} (${percentage}%)`;
+   
+    let message = "お疲れ様！";
+    if (percentage >= 95) message = "素晴らしい！ほぼパーフェクト！🎉 さらなる高みを目指そう！";
+    else if (percentage >= 80) message = "すごい！高得点だね！✨ 次は90%越えに挑戦！";
+    else if (percentage >= 60) message = "良い調子！その調子で語彙力をアップ！👍";
+    else if (percentage >= 40) message = "ナイスチャレンジ！続けることが一番の力だよ！💪";
+    else message = "たくさん練習して、得意な単語を増やしていこう！😊 ファイト！";
+    this.finalMessageEl.textContent = message;
+    if(audioCtx && sounds.start) playSound('start'); 
+  }
+
+  restartGame() {
+    if(audioCtx && sounds.click) playSound('click');
+
+    if (this.timerIntervalId) clearInterval(this.timerIntervalId);
+   
+    this.resultScreenEl.style.display = 'none';
+    this.setupScreenEl.style.display = 'block';
+    this.gameScreenEl.style.display = 'none'; 
+
+    document.querySelectorAll('.btn.selected').forEach(b => b.classList.remove('selected'));
+    const defaultDirBtn = document.querySelector('.dir-btn[data-mode="en-ja"]');
+    if (defaultDirBtn) defaultDirBtn.classList.add('selected');
+    this.playMode = 'en-ja';
+
+    this.progressFillEl.style.width = '0%';
+    this.currentWordEl.textContent = 'Loading...';
+    this.choicesEl.innerHTML = '';
+    this.answerDisplayEl.className = 'answer-display';
+    this.timerDisplayEl.textContent = '時間: --';
+    this.scoreDisplayEl.textContent = 'スコア: 0/0';
+
+    this.level = null;
+    this.timeLimit = null;
+    this.updateStartButtonState();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  window.voiceManager = new VoiceManager();
+  new BlastTrainer();
+  
+  if ('speechSynthesis' in window && typeof speechSynthesis.getVoices === 'function') {
+    const polly = setInterval(() => {
+        if (speechSynthesis.getVoices().length) {
+            clearInterval(polly);
+        } else {
+            speechSynthesis.getVoices(); 
+        }
+    }, 200);
+  }
+});
+</script>
+</body>
+</html>
