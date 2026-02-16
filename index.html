@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>BLAST TRAINER - English Learning Fun!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg-dark:#0c0e14;--bg-card:#14171f;--bg-card-hover:#1a1e29;--bg-input:#1c2030;--primary:#7c6aff;--primary-glow:rgba(124,106,255,.3);--primary-bright:#a08aff;--secondary:#ff7eb3;--secondary-glow:rgba(255,126,179,.25);--accent:#3de8c5;--accent-glow:rgba(61,232,197,.25);--correct:#3de8c5;--correct-glow:rgba(61,232,197,.35);--incorrect:#ff5c6a;--incorrect-glow:rgba(255,92,106,.35);--gold:#ffd166;--gold-glow:rgba(255,209,102,.3);--text-primary:#e8eaf0;--text-secondary:#8890a4;--text-dim:#555d74;--border:rgba(255,255,255,.06);--font-d:'Space Mono',monospace;--font-b:'Outfit',sans-serif}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-b);background:var(--bg-dark);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 12px;overflow-x:hidden;position:relative}
+    body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 20% 50%,rgba(124,106,255,.06) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(255,126,179,.04) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(61,232,197,.04) 0%,transparent 50%);pointer-events:none;z-index:0;animation:ambShift 20s ease-in-out infinite alternate}
+    @keyframes ambShift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-3%,2%) scale(1.05)}}
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");background-size:128px;pointer-events:none;z-index:0}
+    .container{max-width:640px;width:100%;text-align:center;position:relative;z-index:1}
+
+    /* Header */
+    .header{margin-bottom:8px;cursor:pointer}
+    h1{font-family:var(--font-d);font-size:2rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;background:linear-gradient(135deg,var(--primary-bright),var(--secondary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:all .4s ease;display:inline-block}
+    .header:hover h1{letter-spacing:8px}
+    .subtitle{font-size:.75rem;color:var(--text-dim);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+
+    /* Player Status */
+    .player-status{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+    .player-status::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+    .plv-badge{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-bright));display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:1.1rem;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 2px 12px var(--primary-glow)}
+    .pl-info{flex:1;text-align:left}
+    .pl-title{font-size:.7rem;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;font-family:var(--font-d)}
+    .pl-xp-text{font-size:.7rem;color:var(--text-dim);margin-top:2px}
+    .pl-xp-bar{width:100%;height:4px;background:var(--bg-input);border-radius:2px;margin-top:4px;overflow:hidden}
+    .pl-xp-fill{height:100%;background:linear-gradient(90deg,var(--gold),#ffb347);border-radius:2px;transition:width .6s cubic-bezier(.16,1,.3,1);width:0%}
+    .pl-streak{text-align:right;flex-shrink:0}
+    .streak-count{font-family:var(--font-d);font-size:1.1rem;font-weight:700;color:var(--secondary)}
+    .streak-label{font-size:.6rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+
+    /* Cards */
+    .screen{background:var(--bg-card);border:1px solid var(--border);padding:28px 24px;border-radius:20px;width:100%;animation:cardIn .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden;display:none}
+    .screen::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,106,255,.4),rgba(255,126,179,.3),transparent)}
+    .screen.active{display:block}
+    @keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+    .selg{margin-bottom:20px}
+    .sel-label{font-family:var(--font-d);font-size:.65rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;text-align:left;padding-left:4px}
+    .btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+    .btn{border:1px solid var(--border);cursor:pointer;font-family:var(--font-b);font-weight:600;transition:all .2s cubic-bezier(.16,1,.3,1);color:var(--text-secondary);padding:10px 18px;border-radius:10px;background:var(--bg-input);font-size:.9rem}
+    .btn:hover{background:var(--bg-card-hover);color:var(--text-primary);border-color:rgba(255,255,255,.12);transform:translateY(-1px)}
+    .btn.sel{background:linear-gradient(135deg,var(--primary),#9b7fff);color:#fff;border-color:transparent;box-shadow:0 4px 20px var(--primary-glow),inset 0 1px 0 rgba(255,255,255,.15);transform:translateY(-1px)}
+    .dir-btn{flex:1;min-width:140px;text-align:center;height:auto;align-self:center}
+
+    .abtn{padding:16px 40px;font-size:1rem;font-family:var(--font-d);font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:14px;color:#fff;border:none;cursor:pointer;transition:all .3s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+    .abtn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);pointer-events:none}
+    .abtn:hover:not(:disabled){transform:translateY(-3px) scale(1.02)}
+    .abtn:disabled{background:var(--bg-input)!important;color:var(--text-dim)!important;cursor:not-allowed;transform:none!important;box-shadow:none!important;border:1px solid var(--border)}
+    .abtn:disabled::after{display:none}
+    .a-accent{background:linear-gradient(135deg,var(--accent),#2bc4a8);box-shadow:0 6px 24px var(--accent-glow)}
+    .a-accent:hover:not(:disabled){box-shadow:0 10px 36px var(--accent-glow)}
+    .a-pri{background:linear-gradient(135deg,var(--primary),#9b7fff);box-shadow:0 6px 24px var(--primary-glow)}
+    .a-sec{background:linear-gradient(135deg,var(--secondary),#e56a99);box-shadow:0 6px 24px var(--secondary-glow)}
+    .a-sm{padding:12px 28px;font-size:.85rem;letter-spacing:1px}
+    .a-ghost{background:var(--bg-input);border:1px solid var(--border);box-shadow:none;color:var(--text-secondary)}
+    .a-ghost:hover{background:var(--bg-card-hover);color:var(--text-primary)}
+
+    /* Game */
+    .pbar{width:100%;height:4px;background:var(--bg-input);border-radius:2px;margin-bottom:20px;overflow:hidden}
+    .pfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--primary));width:0%;transition:width .4s cubic-bezier(.16,1,.3,1);border-radius:2px;box-shadow:0 0 12px var(--primary-glow)}
+    .ginfo{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:0 4px}
+    .gi{display:flex;align-items:center;gap:6px}
+    .gi-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+    .gi-icon.ti{background:rgba(124,106,255,.12)}.gi-icon.si{background:rgba(255,126,179,.12)}.gi-icon.ci{background:rgba(255,209,102,.12)}
+    .gi-text{font-family:var(--font-d);font-size:.8rem;font-weight:700;letter-spacing:.5px}
+    .gi.timer .gi-text{color:var(--primary-bright)}.gi.score .gi-text{color:var(--secondary)}.gi.combo .gi-text{color:var(--gold)}
+
+    @keyframes comboPop{0%{transform:scale(1)}50%{transform:scale(1.35)}100%{transform:scale(1)}}
+    .combo-pop{animation:comboPop .3s ease}
+
+    .float-text{position:absolute;font-family:var(--font-d);font-weight:700;pointer-events:none;z-index:10;opacity:0}
+    .float-text.show{animation:floatUp 1s ease-out forwards}
+    @keyframes floatUp{0%{opacity:1;transform:translate(-50%,-50%) scale(.8)}30%{opacity:1;transform:translate(-50%,-80%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-130%) scale(.9)}}
+
+    .wdisp{background:var(--bg-input);border:1px solid var(--border);border-radius:16px;padding:28px 20px;margin-bottom:16px;min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;transition:border-color .3s ease,box-shadow .3s ease}
+    .wdisp.combo-on{border-color:rgba(255,209,102,.15);box-shadow:0 0 24px rgba(255,209,102,.04)}
+    .word{font-family:var(--font-d);font-size:2rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;letter-spacing:1px;line-height:1.3}
+
+    .choices{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
+    .next-btn-wrap{display:none;margin-bottom:12px}
+    .next-btn-wrap.show{display:block}
+    .nbtn{width:100%;padding:14px;font-size:.95rem;font-family:var(--font-d);font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:12px;color:#fff;border:none;cursor:pointer;background:linear-gradient(135deg,var(--primary),#9b7fff);box-shadow:0 4px 20px var(--primary-glow);transition:all .2s ease;position:relative;overflow:hidden}
+    .nbtn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);pointer-events:none}
+    .nbtn:hover{transform:translateY(-2px);box-shadow:0 6px 28px var(--primary-glow)}
+    .cbtn{padding:16px 12px;font-size:.95rem;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-family:var(--font-b);font-weight:600;border-radius:12px;cursor:pointer;transition:all .2s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+    .cbtn::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s ease;background:linear-gradient(135deg,rgba(124,106,255,.08),transparent);pointer-events:none}
+    .cbtn:hover:not(:disabled)::before{opacity:1}
+    .cbtn:hover:not(:disabled){border-color:rgba(124,106,255,.3);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.2)}
+    .cbtn.correct{background:linear-gradient(135deg,var(--correct),#2bc4a8);border-color:transparent;color:#fff;box-shadow:0 4px 20px var(--correct-glow);animation:cpulse .5s ease}
+    .cbtn.incorrect,.cbtn.mi{background:var(--incorrect);border-color:transparent;color:#fff;box-shadow:0 4px 20px var(--incorrect-glow)}
+    .cbtn.mi:hover,.cbtn.mi:focus{color:#fff;border-color:transparent}
+    .cbtn.wiggle{animation:shake .4s ease}
+    .cbtn:disabled:not(.correct):not(.mi){background:var(--bg-input);color:var(--text-dim);cursor:not-allowed;border-color:var(--border)}
+    .cbtn:focus{outline:none}
+    @keyframes cpulse{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+    .adisp{margin-top:6px;padding:12px 16px;border-radius:10px;font-size:.9rem;font-weight:600;color:var(--text-secondary);min-height:2.5em;line-height:1.5;visibility:hidden;opacity:0;transition:opacity .3s ease,visibility 0s linear .3s;width:100%}
+    .adisp.visible{visibility:visible;opacity:1;transition:opacity .3s ease,visibility 0s linear 0s}
+    .adisp.ct{color:var(--correct);background:rgba(61,232,197,.06)}
+    .adisp.it{color:var(--incorrect);background:rgba(255,92,106,.06)}
+
+    /* Result */
+    .r-title{font-family:var(--font-d);font-size:1.1rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:16px}
+    .r-score{font-family:var(--font-d);font-size:2.5rem;font-weight:700;margin-bottom:4px;background:linear-gradient(135deg,var(--primary-bright),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .r-pts{font-family:var(--font-d);font-size:.85rem;color:var(--gold);margin-bottom:16px}
+    #finalMsg{font-size:.95rem;color:var(--text-secondary);margin-bottom:20px;line-height:1.6}
+    .r-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+    .scard{background:var(--bg-input);border:1px solid var(--border);border-radius:12px;padding:12px 6px;text-align:center}
+    .scard-v{font-family:var(--font-d);font-size:1.2rem;font-weight:700;color:var(--text-primary)}
+    .scard-l{font-size:.6rem;font-weight:500;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+    .sbox{background:var(--bg-input);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;text-align:left}
+    .sbox-t{font-family:var(--font-d);font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px}
+    .sbox-t.red{color:var(--incorrect)}
+    .hs-i{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.8rem;gap:8px}
+    .hs-i:last-child{border-bottom:none}
+    .hs-r{font-family:var(--font-d);font-weight:700;color:var(--text-dim);width:20px;text-align:center}
+    .hs-r.g{color:var(--gold)}.hs-r.s{color:#c0c0c0}.hs-r.b{color:#cd7f32}
+    .hs-s{font-family:var(--font-d);font-weight:700;color:var(--primary-bright);white-space:nowrap}
+    .hs-d{color:var(--text-dim);font-size:.7rem}
+    .new-b{display:inline-block;padding:1px 6px;background:var(--gold);color:var(--bg-dark);border-radius:4px;font-family:var(--font-d);font-size:.55rem;font-weight:700;letter-spacing:1px;animation:newG 2s ease-in-out infinite;vertical-align:middle;margin-left:4px}
+    @keyframes newG{0%,100%{box-shadow:0 0 6px var(--gold-glow)}50%{box-shadow:0 0 14px var(--gold-glow)}}
+    .xp-sec{background:var(--bg-input);border:1px solid rgba(255,209,102,.15);border-radius:12px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+    .xp-ic{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#ffb347);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+    .xp-inf{text-align:left;flex:1}
+    .xp-amt{font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--gold)}
+    .xp-det{font-size:.7rem;color:var(--text-dim);margin-top:2px}
+    .lvup{display:none;background:linear-gradient(135deg,var(--primary),var(--primary-bright));border-radius:12px;padding:14px;margin-bottom:16px;text-align:center}
+    .lvup.show{display:block;animation:cardIn .5s ease}
+    .lvup-t{font-family:var(--font-d);font-size:.8rem;font-weight:700;color:#fff;letter-spacing:2px;text-transform:uppercase}
+    .lvup-d{font-size:.75rem;color:rgba(255,255,255,.8);margin-top:4px}
+    .mw-i{display:flex;justify-content:space-between;align-items:center;padding:8px 4px;border-bottom:1px solid var(--border);font-size:.85rem}
+    .mw-i:last-child{border-bottom:none}
+    .mw-en{font-weight:600;color:var(--text-primary)}.mw-ja{color:var(--text-secondary)}
+    .r-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+    /* Review */
+    .rev-title{font-family:var(--font-d);font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--secondary);margin-bottom:6px}
+    .rev-sub{font-size:.8rem;color:var(--text-dim);margin-bottom:20px}
+    .rev-prog{font-family:var(--font-d);font-size:.75rem;color:var(--text-dim);margin-bottom:16px}
+
+    /* Voice */
+    .vbtn{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:14px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.3);font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:all .3s ease;z-index:1000}
+    .vbtn:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.12)}
+    .vbtn.muted{opacity:.5}
+    /* Voice toggle button */
+
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--text-dim);border-radius:3px}
+
+    @media(max-width:480px){
+      body{padding:12px 8px}h1{font-size:1.5rem;letter-spacing:3px}.header:hover h1{letter-spacing:3px}
+      .screen{padding:20px 14px}.word{font-size:1.5rem}.choices{grid-template-columns:1fr;gap:8px}
+      .selg .btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px}
+      .selg:last-of-type .btns{grid-template-columns:1fr 1fr}
+      .btn{padding:10px 12px;font-size:.85rem}.abtn{padding:14px 28px;font-size:.9rem}
+      .cbtn{padding:14px 10px;font-size:.9rem}.adisp{font-size:.85rem}
+      .vbtn{bottom:16px;right:16px;width:42px;height:42px;font-size:1rem}
+      .r-score{font-size:2rem}.r-stats{grid-template-columns:repeat(2,1fr);gap:6px}.scard-v{font-size:1rem}
+      .gi-icon{width:26px;height:26px;font-size:.75rem}.gi-text{font-size:.7rem}
+      .player-status{padding:10px 14px;gap:10px}.plv-badge{width:38px;height:38px;font-size:.95rem}
+      .r-btns{flex-direction:column}.r-btns .abtn{width:100%}
+      .sbox{max-height:180px;overflow-y:auto}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header" id="titleArea"><h1>BLAST TRAINER</h1><div class="subtitle">英単語トレーニング</div></div>
+
+  <div class="player-status">
+    <div class="plv-badge" id="plvBadge">1</div>
+    <div class="pl-info">
+      <div class="pl-title" id="plTitle">ビギナー</div>
+      <div class="pl-xp-text" id="plXpText">XP: 0 / 100</div>
+      <div class="pl-xp-bar"><div class="pl-xp-fill" id="plXpFill"></div></div>
+    </div>
+    <div class="pl-streak"><div class="streak-count" id="streakCnt">0</div><div class="streak-label">日連続</div></div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="screen active" id="scrSetup">
+    <div class="selg"><div class="sel-label">Level</div><div class="btns">
+      <button class="btn lv" data-level="5">英検5級</button><button class="btn lv" data-level="4">4級</button><button class="btn lv" data-level="3">3級</button>
+      <button class="btn lv" data-level="p2">準2級</button><button class="btn lv" data-level="2">2級</button><button class="btn lv" data-level="p1">準1級</button><button class="btn lv" data-level="1">1級</button>
+    </div></div>
+    <div class="selg"><div class="sel-label">Time</div><div class="btns">
+      <button class="btn tm" data-time="60">1分</button><button class="btn tm" data-time="180">3分</button><button class="btn tm" data-time="300">5分</button>
+      <button class="btn tm" data-time="600">10分</button><button class="btn tm" data-time="0">無制限</button>
+    </div></div>
+    <div class="selg"><div class="sel-label">Direction</div><div class="btns" style="align-items:stretch">
+      <button class="btn dir-btn sel" data-mode="en-ja">英語 → 日本語</button><button class="btn dir-btn" data-mode="ja-en">日本語 → 英語</button>
+    </div></div>
+    <button class="abtn a-accent" id="startBtn" disabled style="display:block;margin:8px auto 0">START</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="scrGame">
+    <div class="pbar"><div class="pfill" id="pFill"></div></div>
+    <div class="ginfo">
+      <div class="gi timer"><div class="gi-icon ti">⏱</div><div class="gi-text" id="timerD">--:--</div></div>
+      <div class="gi combo" id="comboArea" style="opacity:0"><div class="gi-icon ci">🔥</div><div class="gi-text" id="comboD">×0</div></div>
+      <div class="gi score"><div class="gi-icon si">★</div><div class="gi-text" id="scoreD">0/0</div></div>
+    </div>
+    <div class="wdisp" id="wDisp">
+      <div class="word" id="curWord">Loading...</div>
+      <div class="adisp" id="ansDisp"></div>
+    </div>
+    <div class="choices" id="choices"></div>
+    <div class="next-btn-wrap" id="nextWrap"><button class="nbtn" id="nextBtn">次へ →</button></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="scrResult">
+    <div class="r-title">ゲーム終了</div>
+    <div class="r-score" id="rScore">0 / 0</div>
+    <div class="r-pts" id="rPts">0 pts</div>
+    <div class="lvup" id="lvUp"><div class="lvup-t">LEVEL UP!</div><div class="lvup-d" id="lvUpD"></div></div>
+    <div class="xp-sec"><div class="xp-ic">⚡</div><div class="xp-inf"><div class="xp-amt" id="xpAmt">+0 XP</div><div class="xp-det" id="xpDet"></div></div></div>
+    <div class="r-stats">
+      <div class="scard"><div class="scard-v" id="stCor">0</div><div class="scard-l">正解</div></div>
+      <div class="scard"><div class="scard-v" id="stTot">0</div><div class="scard-l">出題数</div></div>
+      <div class="scard"><div class="scard-v" id="stAcc">0%</div><div class="scard-l">正答率</div></div>
+      <div class="scard"><div class="scard-v" id="stMC">0</div><div class="scard-l">最大コンボ</div></div>
+    </div>
+    <div id="finalMsg"></div>
+    <div class="sbox" id="missedBox" style="display:none"><div class="sbox-t red">✕ 間違えた単語</div><div id="missedList"></div></div>
+    <div class="sbox" id="hsBox"><div class="sbox-t">ハイスコア</div><div id="hsList"></div></div>
+    <div class="r-btns">
+      <button class="abtn a-pri a-sm" id="restartBtn">もう一度</button>
+      <button class="abtn a-sec a-sm" id="reviewBtn" disabled>復習モード</button>
+    </div>
+  </div>
+
+  <!-- REVIEW -->
+  <div class="screen" id="scrReview">
+    <div class="rev-title">復習モード</div>
+    <div class="rev-sub">間違えた単語だけを集中練習</div>
+    <div class="rev-prog" id="revProg"></div>
+    <div class="pbar"><div class="pfill" id="revFill"></div></div>
+    <div class="wdisp"><div class="word" id="revWord">Loading...</div><div class="adisp" id="revAns"></div></div>
+    <div class="choices" id="revChoices"></div>
+    <div class="next-btn-wrap" id="revNextWrap"><button class="nbtn" id="revNextBtn">次へ →</button></div>
+    <div style="margin-top:12px"><button class="abtn a-ghost a-sm" id="revBack">戻る</button></div>
+  </div>
+</div>
+
+<button class="vbtn" id="vBtn" title="音声ON/OFF">🔊</button>
+
+<script>
+/* ===== Audio ===== */
+let AC; const SND={};
+function initA(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();setupSND();}catch(e){}}
+function mkSnd(t,f1,f2,dur,vol,atk=.01,dec=.1){if(!AC)return()=>{};return()=>{if(!AC)return;if(AC.state==='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type=t;o.frequency.setValueAtTime(f1,AC.currentTime);if(f2)o.frequency.exponentialRampToValueAtTime(f2,AC.currentTime+dur*.8);g.gain.setValueAtTime(0,AC.currentTime);g.gain.linearRampToValueAtTime(vol,AC.currentTime+atk);g.gain.linearRampToValueAtTime(0,AC.currentTime+dur+dec);o.start(AC.currentTime);o.stop(AC.currentTime+dur+dec+.1);};}
+function setupSND(){SND.click=mkSnd('triangle',700,500,.03,.15,.005,.03);SND.correct=mkSnd('sine',900,1300,.08,.25,.01,.08);SND.incorrect=mkSnd('square',220,180,.12,.2,.01,.12);SND.start=mkSnd('sawtooth',330,660,.18,.28,.02,.18);SND.combo=mkSnd('sine',1200,1800,.06,.2,.005,.06);SND.levelup=mkSnd('sine',440,880,.3,.3,.02,.3);}
+function sfx(n){if(!AC)initA();if(!AC||!SND[n])return;if(AC.state==='suspended')AC.resume().then(()=>{if(SND[n])SND[n]();});else if(AC.state==='running')SND[n]();}
+(()=>{const fn=()=>{initA();window.removeEventListener('click',fn,{capture:true});window.removeEventListener('touchstart',fn,{capture:true});};window.addEventListener('click',fn,{capture:true,once:true});window.addEventListener('touchstart',fn,{capture:true,once:true});})();
+
+/* ===== Voice (simple: female only, toggle on/off) ===== */
+class VM{
+  constructor(){
+    this.on=true;this.voice=null;
+    try{const s=localStorage.getItem('voiceOn');if(s!==null)this.on=s==='1';}catch(e){}
+    this.updateBtn();this.initV();
+    document.getElementById('vBtn').addEventListener('click',()=>{sfx('click');this.on=!this.on;try{localStorage.setItem('voiceOn',this.on?'1':'0');}catch(e){}this.updateBtn();});
+  }
+  updateBtn(){const b=document.getElementById('vBtn');b.textContent=this.on?'🔊':'🔇';b.classList.toggle('muted',!this.on);}
+  initV(){
+    if(!('speechSynthesis' in window))return;
+    const pick=()=>{
+      const all=speechSynthesis.getVoices();if(!all.length){setTimeout(pick,500);return;}
+      const en=all.filter(v=>v.lang.startsWith('en-')||v.lang.startsWith('en_'));
+      const pool=en.length?en:all;
+      const fem=['female','woman','girl','zira','samantha','karen','victoria','catherine','helen','sara','sarah','amy','emma','olivia','joanna','kendra','ivy','salli','shelley','susan','lisa','nancy'];
+      this.voice=pool.find(v=>{const n=v.name.toLowerCase();return fem.some(f=>n.includes(f));})||pool[0]||null;
+    };
+    if(!speechSynthesis.getVoices().length){speechSynthesis.addEventListener('voiceschanged',pick);setTimeout(pick,500);setTimeout(pick,1500);}else pick();
+  }
+  speak(text){
+    if(!this.on||!('speechSynthesis' in window)||!text)return;
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    if(this.voice){u.voice=this.voice;u.lang=this.voice.lang;}else u.lang='en-US';
+    u.rate=.88;u.pitch=1.12;
+    speechSynthesis.speak(u);
+  }
+}
+
+/* ===== XP/Level ===== */
+const TITLES=[{lv:1,t:'ビギナー',xp:100},{lv:2,t:'チャレンジャー',xp:200},{lv:3,t:'ワードハンター',xp:350},{lv:4,t:'ボキャブラリスト',xp:500},{lv:5,t:'ワードマスター',xp:700},{lv:6,t:'クイズキング',xp:950},{lv:7,t:'ブレインストーマー',xp:1250},{lv:8,t:'エキスパート',xp:1600},{lv:9,t:'プロフェッサー',xp:2000},{lv:10,t:'レジェンド',xp:2500},{lv:11,t:'グランドマスター',xp:3200},{lv:12,t:'語彙の神',xp:999999}];
+class PD{
+  constructor(){try{const d=JSON.parse(localStorage.getItem('blastPD'));if(d){this.xp=d.xp||0;this.lv=d.lv||1;this.lastDate=d.lastDate||null;this.streak=d.streak||0;}else this.rst();}catch(e){this.rst();}}
+  rst(){this.xp=0;this.lv=1;this.lastDate=null;this.streak=0;}
+  save(){localStorage.setItem('blastPD',JSON.stringify({xp:this.xp,lv:this.lv,lastDate:this.lastDate,streak:this.streak}));}
+  ti(){return TITLES.find(t=>t.lv===this.lv)||TITLES[0];}
+  curXP(){let a=0;for(const t of TITLES){if(t.lv===this.lv)break;a+=t.xp;}return this.xp-a;}
+  addXP(n){this.xp+=n;let up=false;while(this.lv<TITLES.length){let a=0;for(let i=0;i<this.lv;i++)a+=TITLES[i].xp;if(this.xp>=a){this.lv=Math.min(this.lv+1,TITLES.length);up=true;}else break;}this.save();return up;}
+  updStreak(){const td=new Date().toDateString();if(this.lastDate){const d=Math.floor((new Date(td)-new Date(this.lastDate))/(864e5));if(d===1)this.streak++;else if(d>1)this.streak=1;}else this.streak=1;this.lastDate=td;this.save();}
+  updUI(){document.getElementById('plvBadge').textContent=this.lv;document.getElementById('plTitle').textContent=this.ti().t;const c=this.curXP(),n=this.ti().xp;document.getElementById('plXpText').textContent=`XP: ${c} / ${n}`;document.getElementById('plXpFill').style.width=`${Math.min(100,(c/n)*100)}%`;document.getElementById('streakCnt').textContent=this.streak;}
+}
+
+/* ===== High Scores ===== */
+class HS{
+  constructor(){try{this.d=JSON.parse(localStorage.getItem('blastHS'))||{};}catch(e){this.d={};}}
+  save(){localStorage.setItem('blastHS',JSON.stringify(this.d));}
+  add(lv,tm,sc,att,pts){const k=`${lv}-${tm}`;if(!this.d[k])this.d[k]=[];const pct=att>0?Math.round((sc/att)*100):0;this.d[k].push({sc,att,pct,pts,dt:new Date().toLocaleDateString('ja-JP')});this.d[k].sort((a,b)=>b.pts-a.pts);this.d[k]=this.d[k].slice(0,5);this.save();return this.d[k][0].pts===pts;}
+  get(lv,tm){return this.d[`${lv}-${tm}`]||[];}
+}
+
+/* ===== Utils ===== */
+const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+/* ===== Main ===== */
+class BT{
+  constructor(){
+    this.lv=null;this.tl=null;this.pm='en-ja';this.words=[];this.cw=null;this.sq=[];this.qi=0;
+    this.sc=0;this.att=0;this.cfirst=false;this.tLeft=0;this.tid=null;this.playing=false;
+    this.combo=0;this.maxC=0;this.pts=0;this.missed=[];
+    this.player=new PD();this.hs=new HS();
+    this.player.updUI();this.bindEvts();this.updStart();
+  }
+  $(id){return document.getElementById(id);}
+  show(name){['scrSetup','scrGame','scrResult','scrReview'].forEach(s=>{this.$(s).classList.toggle('active',s===name);});}
+  bindEvts(){
+    this.$('titleArea').addEventListener('click',()=>{sfx('click');location.reload();});
+    document.querySelectorAll('.lv').forEach(b=>b.addEventListener('click',()=>this.sel(b,'lv')));
+    document.querySelectorAll('.tm').forEach(b=>b.addEventListener('click',()=>this.sel(b,'tm')));
+    document.querySelectorAll('.dir-btn').forEach(b=>b.addEventListener('click',()=>this.sel(b,'dir')));
+    this.$('startBtn').addEventListener('click',()=>{if(!this.$('startBtn').disabled){sfx('click');this.start();}});
+    this.$('restartBtn').addEventListener('click',()=>this.restart());
+    this.$('reviewBtn').addEventListener('click',()=>this.startRev());
+    this.$('revBack').addEventListener('click',()=>{sfx('click');this.show('scrResult');});
+    this.$('nextBtn').addEventListener('click',()=>{sfx('click');this.nextQ();});
+    this.$('revNextBtn').addEventListener('click',()=>{sfx('click');this.nextRev();});
+  }
+  sel(b,type){
+    sfx('click');const cls=type==='lv'?'lv':type==='tm'?'tm':'dir-btn';
+    document.querySelectorAll(`.${cls}`).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');
+    if(type==='lv')this.lv=b.dataset.level;if(type==='tm')this.tl=parseInt(b.dataset.time,10);if(type==='dir')this.pm=b.dataset.mode;
+    this.updStart();
+  }
+  updStart(){this.$('startBtn').disabled=!(this.lv&&this.tl!==null);}
+  async loadWords(){
+    try{const r=await fetch(`./data/words-${this.lv}.txt`);if(!r.ok)throw 0;const t=await r.text();
+    this.words=t.trim().split('\n').map(l=>{const[e,j]=l.split('\t');return{english:e?.trim(),japanese:j?.trim()};}).filter(w=>w.english&&w.japanese);
+    if(!this.words.length)throw 0;}catch(e){this.words=Array.from({length:20},(_,i)=>({english:`Sample ${i+1}`,japanese:`サンプル ${i+1}`}));}
+  }
+  async start(){
+    sfx('start');this.show('scrGame');await this.loadWords();
+    this.sq=shuf(this.words.slice());this.qi=0;this.sc=0;this.att=0;this.combo=0;this.maxC=0;this.pts=0;this.missed=[];this.playing=true;this.tLeft=this.tl;
+    this.updCombo();if(this.tl>0)this.startTm();else this.updTm();this.nextQ();this.updSc();
+  }
+  startTm(){this.updTm();this.tid=setInterval(()=>{this.tLeft--;this.updTm();if(this.tLeft<=0)this.end();},1000);}
+  updTm(){if(this.tl===0){this.$('timerD').textContent='∞';return;}const m=Math.floor(this.tLeft/60),s=String(this.tLeft%60).padStart(2,'0');this.$('timerD').textContent=`${m}:${s}`;}
+  updCombo(){
+    const ca=this.$('comboArea'),cd=this.$('comboD'),wd=this.$('wDisp');
+    if(this.combo>=2){ca.style.opacity='1';cd.textContent=`×${this.combo}`;cd.classList.remove('combo-pop');void cd.offsetWidth;cd.classList.add('combo-pop');wd.classList.add('combo-on');}
+    else{ca.style.opacity='0';wd.classList.remove('combo-on');}
+  }
+  showFloat(txt,color){const el=document.createElement('div');el.className='float-text show';el.style.cssText=`top:40%;left:50%;font-size:1rem;color:${color};text-shadow:0 0 16px ${color}40`;el.textContent=txt;this.$('wDisp').appendChild(el);setTimeout(()=>el.remove(),1100);}
+  calcPts(combo){let b=10,c=0;if(combo>=10)c=15;else if(combo>=7)c=10;else if(combo>=5)c=7;else if(combo>=3)c=4;else if(combo>=2)c=2;return b+c;}
+  nextQ(){
+    if(!this.playing)return;this.cfirst=false;this.$('nextWrap').classList.remove('show');
+    if(this.qi>=this.sq.length){this.sq=shuf(this.words.slice());this.qi=0;}
+    this.cw=this.sq[this.qi++];
+    const q=this.pm==='en-ja'?this.cw.english:this.cw.japanese;const a=this.pm==='en-ja'?this.cw.japanese:this.cw.english;
+    this.$('curWord').textContent=q;this.$('ansDisp').textContent='';this.$('ansDisp').className='adisp';
+    if(this.pm==='en-ja'&&q)window.vm.speak(q);
+    const pool=this.words.filter(w=>(this.pm==='en-ja'?w.japanese:w.english)!==a&&(this.pm==='en-ja'?w.english:w.japanese)!==q);
+    const wrong=shuf(pool).slice(0,3).map(w=>this.pm==='en-ja'?w.japanese:w.english);
+    const ch=shuf([a,...wrong]);const cel=this.$('choices');cel.innerHTML='';
+    ch.forEach(c=>{const b=document.createElement('button');b.className='btn cbtn';b.textContent=c;b.addEventListener('click',()=>this.answer(b,c,a,this.cw.english,this.cw.japanese));cel.appendChild(b);});
+    this.updSc();if(document.activeElement)document.activeElement.blur();
+  }
+  answer(btn,sel,cor,eng,jp){
+    if(!this.playing)return;
+    let first=true;for(const b of this.$('choices').querySelectorAll('.cbtn')){if(b.classList.contains('mi')||b.classList.contains('correct')){first=false;break;}}
+    let so;if(this.pm==='en-ja')so=this.words.find(w=>w.japanese===sel);else so=this.words.find(w=>w.english===sel);
+    const sE=so?.english||(this.pm==='ja-en'?sel:"???"),sJ=so?.japanese||(this.pm==='en-ja'?sel:"???");
+    if(sE&&sE!=="???")window.vm.speak(sE);
+    const ok=sel===cor;const ad=this.$('ansDisp');ad.classList.remove('ct','it','visible');void ad.offsetWidth;
+    if(ok){
+      sfx('correct');if(first&&!this.cfirst){this.sc++;this.cfirst=true;this.combo++;if(this.combo>this.maxC)this.maxC=this.combo;const p=this.calcPts(this.combo);this.pts+=p;if(this.combo>=3){sfx('combo');this.showFloat(`+${p}`,getComputedStyle(document.documentElement).getPropertyValue('--gold').trim());}}
+      btn.classList.remove('mi','wiggle');btn.classList.add('correct');ad.textContent=`正解！「${eng}」は「${jp}」だね！`;ad.classList.add('ct');
+      document.querySelectorAll('.cbtn').forEach(b=>{b.disabled=true;if(b!==btn&&b.textContent!==cor)b.style.opacity='.4';});
+      this.updCombo();this.$('nextWrap').classList.add('show');
+    }else{
+      sfx('incorrect');if(first){this.combo=0;this.updCombo();if(!this.missed.find(w=>w.english===eng))this.missed.push({english:eng,japanese:jp});}
+      btn.classList.add('mi','wiggle');setTimeout(()=>btn.classList.remove('wiggle'),400);
+      ad.textContent=`「${sE}」は「${sJ}」だよ。`;ad.classList.add('it');
+    }
+    if(first)this.att++;ad.classList.add('visible');this.updSc();
+  }
+  updSc(){this.$('scoreD').textContent=`${this.sc}/${this.att}`;const p=this.att>0?(this.sc/this.att)*100:0;this.$('pFill').style.width=`${p}%`;}
+  end(){
+    this.playing=false;if(this.tid)clearInterval(this.tid);this.show('scrResult');
+    const pct=this.att>0?Math.round((this.sc/this.att)*100):0;
+    this.$('rScore').textContent=`${this.sc} / ${this.att}`;this.$('rPts').textContent=`${this.pts} pts`;
+    this.$('stCor').textContent=this.sc;this.$('stTot').textContent=this.att;this.$('stAcc').textContent=`${pct}%`;this.$('stMC').textContent=this.maxC;
+    // XP
+    let xpB=this.sc*5,xpC=this.maxC>=5?this.maxC*2:0,xpA=pct>=80?20:pct>=60?10:0,xpT=xpB+xpC+xpA;
+    const lvd=this.player.addXP(xpT);this.player.updStreak();this.player.updUI();
+    this.$('xpAmt').textContent=`+${xpT} XP`;
+    const det=[`正解: ${xpB}`];if(xpC>0)det.push(`コンボ: ${xpC}`);if(xpA>0)det.push(`正答率: ${xpA}`);
+    this.$('xpDet').textContent=det.join(' ＋ ');
+    if(lvd){this.$('lvUp').classList.add('show');this.$('lvUpD').textContent=`→ ${this.player.ti().t}`;sfx('levelup');}else this.$('lvUp').classList.remove('show');
+    // HS
+    const isRec=this.hs.add(this.lv,this.tl,this.sc,this.att,this.pts);
+    const scores=this.hs.get(this.lv,this.tl);const hl=this.$('hsList');hl.innerHTML='';
+    scores.forEach((s,i)=>{const rc=i===0?'g':i===1?'s':i===2?'b':'';const nb=(i===0&&isRec)?` <span class="new-b">NEW</span>`:'';
+    hl.innerHTML+=`<div class="hs-i"><span class="hs-r ${rc}">${i+1}</span><span>${s.sc}/${s.att} (${s.pct}%)</span><span class="hs-s">${s.pts}pts${nb}</span><span class="hs-d">${s.dt}</span></div>`;});
+    // Missed
+    const mb=this.$('missedBox'),ml=this.$('missedList');
+    if(this.missed.length){mb.style.display='block';ml.innerHTML='';this.missed.forEach(w=>{ml.innerHTML+=`<div class="mw-i"><span class="mw-en">${w.english}</span><span class="mw-ja">${w.japanese}</span></div>`;});this.$('reviewBtn').disabled=false;}
+    else{mb.style.display='none';this.$('reviewBtn').disabled=true;}
+    // Msg
+    let msg="お疲れ様！";if(pct>=95)msg="素晴らしい！ほぼパーフェクト！🎉";else if(pct>=80)msg="すごい！高得点！✨";else if(pct>=60)msg="良い調子！語彙力UP中！👍";else if(pct>=40)msg="ナイスチャレンジ！💪";else msg="練習あるのみ！😊";
+    this.$('finalMsg').textContent=msg;sfx('start');
+  }
+  restart(){
+    sfx('click');if(this.tid)clearInterval(this.tid);this.show('scrSetup');
+    document.querySelectorAll('.btn.sel').forEach(b=>b.classList.remove('sel'));
+    document.querySelector('.dir-btn[data-mode="en-ja"]')?.classList.add('sel');this.pm='en-ja';
+    this.$('pFill').style.width='0%';this.$('curWord').textContent='Loading...';this.$('choices').innerHTML='';
+    this.$('ansDisp').className='adisp';this.$('timerD').textContent='--:--';this.$('scoreD').textContent='0/0';
+    this.lv=null;this.tl=null;this.updStart();this.player.updUI();
+  }
+  /* Review */
+  startRev(){
+    if(!this.missed.length)return;sfx('start');this.show('scrReview');
+    this.rq=shuf([...this.missed]);this.ri=0;this.rsc=0;this.rt=this.rq.length;this.nextRev();
+  }
+  nextRev(){
+    this.$('revNextWrap').classList.remove('show');
+    if(this.ri>=this.rq.length){this.finRev();return;}
+    const w=this.rq[this.ri];const q=this.pm==='en-ja'?w.english:w.japanese;const a=this.pm==='en-ja'?w.japanese:w.english;
+    this.$('revWord').textContent=q;this.$('revProg').textContent=`${this.ri+1} / ${this.rt}`;
+    this.$('revFill').style.width=`${(this.ri/this.rt)*100}%`;this.$('revAns').textContent='';this.$('revAns').className='adisp';
+    if(this.pm==='en-ja'&&q)window.vm.speak(q);
+    const pool=this.words.filter(wd=>(this.pm==='en-ja'?wd.japanese:wd.english)!==a);
+    const wrong=shuf(pool).slice(0,3).map(wd=>this.pm==='en-ja'?wd.japanese:wd.english);
+    const ch=shuf([a,...wrong]);const cel=this.$('revChoices');cel.innerHTML='';
+    ch.forEach(c=>{const b=document.createElement('button');b.className='btn cbtn';b.textContent=c;b.addEventListener('click',()=>this.revAns(b,c,a,w.english,w.japanese));cel.appendChild(b);});
+  }
+  revAns(btn,sel,cor,eng,jp){
+    const ad=this.$('revAns');ad.classList.remove('ct','it','visible');void ad.offsetWidth;
+    let so;if(this.pm==='en-ja')so=this.words.find(w=>w.japanese===sel);else so=this.words.find(w=>w.english===sel);
+    const sE=so?.english||(this.pm==='ja-en'?sel:"???"),sJ=so?.japanese||(this.pm==='en-ja'?sel:"???");
+    if(sE&&sE!=="???")window.vm.speak(sE);
+    if(sel===cor){sfx('correct');btn.classList.add('correct');ad.textContent=`正解！「${eng}」は「${jp}」！`;ad.classList.add('ct');this.rsc++;
+    document.querySelectorAll('#revChoices .cbtn').forEach(b=>{b.disabled=true;if(b!==btn)b.style.opacity='.4';});
+    this.ri++;ad.classList.add('visible');this.$('revFill').style.width=`${(this.ri/this.rt)*100}%`;
+    this.$('revNextWrap').classList.add('show');
+    }else{sfx('incorrect');btn.classList.add('mi','wiggle');setTimeout(()=>btn.classList.remove('wiggle'),400);
+    ad.textContent=`「${sE}」は「${sJ}」だよ。`;ad.classList.add('it');ad.classList.add('visible');}
+  }
+  finRev(){
+    this.$('revWord').textContent='復習完了！';this.$('revChoices').innerHTML='';this.$('revFill').style.width='100%';
+    this.$('revProg').textContent=`${this.rsc}/${this.rt} 正解`;
+    const ad=this.$('revAns');ad.textContent=this.rsc===this.rt?'全問正解！素晴らしい！🎉':`${this.rt-this.rsc}問ミス。もう一度やってみよう！`;
+    ad.className='adisp visible ct';sfx('start');
+    const xp=this.rsc*3;if(xp>0){this.player.addXP(xp);this.player.updUI();}
+  }
+}
+
+window.addEventListener('DOMContentLoaded',()=>{window.vm=new VM();new BT();
+if('speechSynthesis' in window){const p=setInterval(()=>{if(speechSynthesis.getVoices().length)clearInterval(p);else speechSynthesis.getVoices();},200);}});
+</script>
+</body>
+</html>
